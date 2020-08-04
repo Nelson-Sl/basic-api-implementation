@@ -1,15 +1,19 @@
 package com.thoughtworks.rslist;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.thoughtworks.rslist.domain.HotEvents;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.hamcrest.Matchers.is;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -20,23 +24,18 @@ class RsListApplicationTests {
     @Test
     void getOneSpecialEvent() throws Exception {
         mockMvc.perform(get("/rs/list/1"))
-                .andExpect(content().string("第一条事件"))
+                .andExpect(jsonPath("$.eventName",is("第一条事件")))
+                .andExpect(jsonPath("$.keyWord",is("无分类")))
                 .andExpect(status().isOk())
                 .andReturn();
         mockMvc.perform(get("/rs/list/2"))
-                .andExpect(content().string("第二条事件"))
+                .andExpect(jsonPath("$.eventName",is("第二条事件")))
+                .andExpect(jsonPath("$.keyWord",is("无分类")))
                 .andExpect(status().isOk())
                 .andReturn();
         mockMvc.perform(get("/rs/list/3"))
-                .andExpect(content().string("第三条事件"))
-                .andExpect(status().isOk())
-                .andReturn();
-        mockMvc.perform(get("/rs/list/0"))
-                .andExpect(content().string("Cannot reach corresponding data"))
-                .andExpect(status().isOk())
-                .andReturn();
-        mockMvc.perform(get("/rs/list/100"))
-                .andExpect(content().string("Cannot reach corresponding data"))
+                .andExpect(jsonPath("$.eventName",is("第三条事件")))
+                .andExpect(jsonPath("$.keyWord",is("无分类")))
                 .andExpect(status().isOk())
                 .andReturn();
     }
@@ -44,23 +43,46 @@ class RsListApplicationTests {
     @Test
     void getSpecialRangeOfEvent() throws Exception {
         mockMvc.perform(get("/rs/list?start=1&end=2"))
-                .andExpect(content().string("[第一条事件, 第二条事件]"))
+                .andExpect(jsonPath("$[0].eventName",is("第一条事件")))
+                .andExpect(jsonPath("$[0].keyWord",is("无分类")))
+                .andExpect(jsonPath("$[1].eventName",is("第二条事件")))
+                .andExpect(jsonPath("$[1].keyWord",is("无分类")))
                 .andExpect(status().isOk())
                 .andReturn();
         mockMvc.perform(get("/rs/list?start=2&end=3"))
-                .andExpect(content().string("[第二条事件, 第三条事件]"))
+                .andExpect(jsonPath("$[0].eventName",is("第二条事件")))
+                .andExpect(jsonPath("$[0].keyWord",is("无分类")))
+                .andExpect(jsonPath("$[1].eventName",is("第三条事件")))
+                .andExpect(jsonPath("$[1].keyWord",is("无分类")))
                 .andExpect(status().isOk())
                 .andReturn();
         mockMvc.perform(get("/rs/list?start=1&end=3"))
-                .andExpect(content().string("[第一条事件, 第二条事件, 第三条事件]"))
+                .andExpect(jsonPath("$[0].eventName",is("第一条事件")))
+                .andExpect(jsonPath("$[0].keyWord",is("无分类")))
+                .andExpect(jsonPath("$[1].eventName",is("第二条事件")))
+                .andExpect(jsonPath("$[1].keyWord",is("无分类")))
+                .andExpect(jsonPath("$[2].eventName",is("第三条事件")))
+                .andExpect(jsonPath("$[2].keyWord",is("无分类")))
                 .andExpect(status().isOk())
                 .andReturn();
-        mockMvc.perform(get("/rs/list?start=3&end=1"))
-                .andExpect(content().string("Your range input doesn't make sense, please recheck."))
+    }
+
+    @Test
+    void addHotEvent() throws Exception {
+        String newEvent = "{\"eventName\":\"第四条事件\",\"keyWord\":\"无分类\"}";
+        mockMvc.perform(post("/rs/addEvent")
+                .contentType(MediaType.APPLICATION_JSON).content(newEvent))
                 .andExpect(status().isOk())
                 .andReturn();
-        mockMvc.perform(get("/rs/list?start=2&end=2"))
-                .andExpect(content().string("Your range input doesn't make sense, please recheck."))
+        mockMvc.perform(get("/rs/list"))
+                .andExpect(jsonPath("$[0].eventName",is("第一条事件")))
+                .andExpect(jsonPath("$[0].keyWord",is("无分类")))
+                .andExpect(jsonPath("$[1].eventName",is("第二条事件")))
+                .andExpect(jsonPath("$[1].keyWord",is("无分类")))
+                .andExpect(jsonPath("$[2].eventName",is("第三条事件")))
+                .andExpect(jsonPath("$[2].keyWord",is("无分类")))
+                .andExpect(jsonPath("$[3].eventName",is("第四条事件")))
+                .andExpect(jsonPath("$[3].keyWord",is("无分类")))
                 .andExpect(status().isOk())
                 .andReturn();
     }
