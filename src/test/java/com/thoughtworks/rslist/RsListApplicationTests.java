@@ -1,5 +1,6 @@
 package com.thoughtworks.rslist;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -28,6 +29,38 @@ class RsListApplicationTests {
                 .andReturn();
         mockMvc.perform(get("/rs/list/3"))
                 .andExpect(content().string("第三条事件"))
+                .andExpect(status().isOk())
+                .andReturn();
+        mockMvc.perform(get("/rs/list/0"))
+                .andExpect(content().string("Cannot reach corresponding data"))
+                .andExpect(status().isOk())
+                .andReturn();
+        mockMvc.perform(get("/rs/list/100"))
+                .andExpect(content().string("Cannot reach corresponding data"))
+                .andExpect(status().isOk())
+                .andReturn();
+    }
+
+    @Test
+    void getSpecialRangeOfEvent() throws Exception {
+        mockMvc.perform(get("/rs/list?start=1&end=2"))
+                .andExpect(content().string("[第一条事件, 第二条事件]"))
+                .andExpect(status().isOk())
+                .andReturn();
+        mockMvc.perform(get("/rs/list?start=2&end=3"))
+                .andExpect(content().string("[第二条事件, 第三条事件]"))
+                .andExpect(status().isOk())
+                .andReturn();
+        mockMvc.perform(get("/rs/list?start=1&end=3"))
+                .andExpect(content().string("[第一条事件, 第二条事件, 第三条事件]"))
+                .andExpect(status().isOk())
+                .andReturn();
+        mockMvc.perform(get("/rs/list?start=3&end=1"))
+                .andExpect(content().string("Your range input doesn't make sense, please recheck."))
+                .andExpect(status().isOk())
+                .andReturn();
+        mockMvc.perform(get("/rs/list?start=2&end=2"))
+                .andExpect(content().string("Your range input doesn't make sense, please recheck."))
                 .andExpect(status().isOk())
                 .andReturn();
     }
