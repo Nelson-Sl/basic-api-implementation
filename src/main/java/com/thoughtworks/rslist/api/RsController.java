@@ -37,5 +37,17 @@ public class RsController {
         rsList.add(newEvent);
     }
 
+    @PostMapping("/rs/alterEvent")
+    public void alterHotEvent(@RequestParam String indexStr,
+                              @RequestParam(required = false) String eventName,
+                              @RequestParam(required = false) String keyWord) {
+        int index = Integer.parseInt(indexStr);
+        if(eventName != null) {
+            rsList.get(index - 1).setEventName(eventName);
+        }
+        if(keyWord != null) {
+            rsList.get(index - 1).setKeyWord(keyWord);
+        }
+    }
 
 }
