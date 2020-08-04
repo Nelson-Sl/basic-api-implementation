@@ -50,4 +50,11 @@ public class RsController {
         }
     }
 
+    @PostMapping("/rs/deleteEvent")
+    public void deleteHotEvent(@RequestParam String indexStr) {
+        int index = Integer.parseInt(indexStr);
+        rsList.remove(index-1);
+    }
+
+
 }

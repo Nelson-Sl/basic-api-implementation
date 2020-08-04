@@ -123,4 +123,20 @@ class RsListApplicationTests {
 
     }
 
+    @Test
+    void deleteHotEvent() throws Exception {
+        mockMvc.perform(post("/rs/deleteEvent")
+                        .param("indexStr", "1")
+                        .contentType("application/json; charset=UTF-8"))
+                        .andExpect(status().isOk())
+                        .andReturn();
+        mockMvc.perform(get("/rs/list"))
+                .andExpect(jsonPath("$[0].eventName",is("第二条事件")))
+                .andExpect(jsonPath("$[0].keyWord",is("无分类")))
+                .andExpect(jsonPath("$[1].eventName",is("第三条事件")))
+                .andExpect(jsonPath("$[1].keyWord",is("无分类")))
+                .andExpect(status().isOk())
+                .andReturn();
+    }
+
 }
