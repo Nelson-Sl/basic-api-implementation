@@ -95,7 +95,7 @@ public class UserValidateTest {
 
     @Test
     void userShouldNotBeAddedWithNullAge() throws Exception {
-        User user = new User("Alibaba",20,null,"a@b.com","11234567890");
+        User user = new User("Alibaba",null,"Male","a@b.com","11234567890");
         ObjectMapper objectMapper = new ObjectMapper();
         String userInfo = objectMapper.writeValueAsString(user);
         mockMvc.perform(post("/user")

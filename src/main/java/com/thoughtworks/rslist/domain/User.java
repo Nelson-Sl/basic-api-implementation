@@ -18,10 +18,7 @@ Basic Input Example
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 
 @Data
 @NoArgsConstructor
@@ -31,13 +28,15 @@ public class User {
     private String userName;
     @Min(18)
     @Max(100)
-    private int age;
+    @NotNull
+    private Integer age;
     @NotNull
     private String gender;
+    @Email
     private String email;
     private String phone;
 
-    public User(String userName, int age, String gender, String email, String phone) {
+    public User(String userName, Integer age, String gender, String email, String phone) {
         this.userName = userName;
         this.age = age;
         this.gender = gender;
@@ -53,7 +52,7 @@ public class User {
         return userName;
     }
 
-    public void setAge(int age) {
+    public void setAge(Integer age) {
         this.age = age;
     }
 
