@@ -1,6 +1,8 @@
 package com.thoughtworks.rslist.api;
 
 import com.thoughtworks.rslist.domain.User;
+import com.thoughtworks.rslist.exception.CommonError;
+import com.thoughtworks.rslist.exception.InvalidIndexInputException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,7 +28,10 @@ public class RsController {
 
 
     @GetMapping("/rs/list/{index}")
-    public ResponseEntity<HotEvents> getSpecialEvents(@PathVariable int index) {
+    public ResponseEntity getSpecialEvents(@PathVariable int index) throws InvalidIndexInputException {
+        if(index > rsList.size()) {
+            throw new InvalidIndexInputException("invalid index");
+        }
         return ResponseEntity.ok(rsList.get(index-1));
     }
 
@@ -35,6 +40,8 @@ public class RsController {
                                   @RequestParam(required = false) Integer end) {
         if(start == null || end == null) {
             return ResponseEntity.ok(rsList);
+        }else if(start > end) {
+            ResponseEntity.status(HttpStatus.BAD_REQUEST);
         }
         return ResponseEntity.ok(rsList.subList(start-1,end));
     }
@@ -67,5 +74,10 @@ public class RsController {
         return ResponseEntity.ok(rsList.remove(index-1));
     }
 
-
+    @ExceptionHandler(InvalidIndexInputException.class)
+    public ResponseEntity exceptionHandler(InvalidIndexInputException iie) {
+        CommonError commonError = new CommonError();
+        commonError.setError(iie.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(commonError);
+    }
 }
