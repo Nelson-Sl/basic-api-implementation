@@ -2,6 +2,7 @@ package com.thoughtworks.rslist.api;
 
 import com.thoughtworks.rslist.domain.User;
 import com.thoughtworks.rslist.exception.InvalidIndexInputException;
+import com.thoughtworks.rslist.exception.InvalidRequestParamException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -37,13 +38,13 @@ public class RsController {
     }
 
     @GetMapping("/rs/list")
-    public ResponseEntity<List<HotEvents>> getSpecialRange(@RequestParam(required = false) Integer start,
-                                  @RequestParam(required = false) Integer end) {
+    public ResponseEntity getSpecialRange(@RequestParam(required = false) Integer start,
+                                  @RequestParam(required = false) Integer end) throws InvalidRequestParamException {
         if(start == null || end == null) {
             return ResponseEntity.ok(rsList);
         }
         if(start >= end) {
-            ResponseEntity.status(HttpStatus.BAD_REQUEST);
+            throw new InvalidRequestParamException("invalid request param");
         }
         return ResponseEntity.ok(rsList.subList(start-1,end));
     }

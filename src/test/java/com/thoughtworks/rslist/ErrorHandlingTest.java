@@ -26,7 +26,8 @@ public class ErrorHandlingTest {
     @Test
     void get400BadRequestIfStartIsLargerThanEndInEventRangeSearch() throws Exception {
         mockMvc.perform(get("/rs/list?start=2&end=1"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error",is("invalid request param")));
 
     }
 
