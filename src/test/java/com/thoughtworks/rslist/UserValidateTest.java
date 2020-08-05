@@ -45,7 +45,7 @@ public class UserValidateTest {
 
     @Test
     void userShouldNotBeAddedWithNameMoreThan8Characters() throws Exception {
-        User user = new User("Alibabaa",20,"Male","a@b.com","11234567890");
+        User user = new User("Alibabaal",20,"Male","a@b.com","11234567890");
         ObjectMapper objectMapper = new ObjectMapper();
         String userInfo = objectMapper.writeValueAsString(user);
         mockMvc.perform(post("/user")
