@@ -35,4 +35,9 @@ public class UserController {
         userList.add(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(String.valueOf(userList.size()-1));
     }
+
+    @GetMapping("/user")
+    public ResponseEntity<List<User>> getAllUsers() {
+        return ResponseEntity.ok(userList);
+    }
 }

@@ -38,7 +38,7 @@ public class ResponseTest {
         mockMvcRsController.perform(get("/rs/list/1"))
                 .andExpect(jsonPath("$.eventName",is("第一条事件")))
                 .andExpect(jsonPath("$.keyWord",is("无分类")))
-                .andExpect(jsonPath("$.user.userName",is("Tony")))
+               // .andExpect(jsonPath("$.user.userName",is("Tony")))
                 .andExpect(status().isOk())
                 .andReturn();
     }
@@ -48,13 +48,13 @@ public class ResponseTest {
         mockMvcRsController.perform(get("/rs/list"))
                 .andExpect(jsonPath("$[0].eventName",is("第一条事件")))
                 .andExpect(jsonPath("$[0].keyWord",is("无分类")))
-                .andExpect(jsonPath("$[0].user.userName",is("Tony")))
+                // .andExpect(jsonPath("$[0].user.userName",is("Tony")))
                 .andExpect(jsonPath("$[1].eventName",is("第二条事件")))
                 .andExpect(jsonPath("$[1].keyWord",is("无分类")))
-                .andExpect(jsonPath("$[1].user.userName",is("Mark")))
+                // .andExpect(jsonPath("$[1].user.userName",is("Mark")))
                 .andExpect(jsonPath("$[2].eventName",is("第三条事件")))
                 .andExpect(jsonPath("$[2].keyWord",is("无分类")))
-                .andExpect(jsonPath("$[2].user.userName",is("Jenny")))
+                // .andExpect(jsonPath("$[2].user.userName",is("Jenny")))
                 .andExpect(status().isOk())
                 .andReturn();
     }
@@ -117,5 +117,17 @@ public class ResponseTest {
                 .andExpect(jsonPath("$",not(hasKey("user"))))
                 .andExpect(status().isOk())
                 .andReturn();
+    }
+
+    @Test
+    void getAllUsersByAddingJsonPropertyAnnotation() throws Exception {
+        mockMvcUserController.perform(get("/user"))
+                .andExpect(jsonPath("$[0].userName",is("Tony")))
+                .andExpect(jsonPath("$[0].gender",is("Male")))
+                .andExpect(jsonPath("$[1].userName",is("Mark")))
+                .andExpect(jsonPath("$[1].gender",is("Male")))
+                .andExpect(jsonPath("$[2].userName",is("Jenny")))
+                .andExpect(jsonPath("$[2].gender",is("Female")))
+                .andExpect(status().isOk());
     }
 }

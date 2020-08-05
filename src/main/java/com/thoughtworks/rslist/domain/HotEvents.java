@@ -1,20 +1,12 @@
 package com.thoughtworks.rslist.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class HotEvents {
     private String eventName;
     private String keyWord;
     private User user;
-
-    public HotEvents() {
-
-    }
-
-    public HotEvents(String eventName, String keyWord) {
-        this.eventName = eventName;
-        this.keyWord = keyWord;
-    }
 
     public HotEvents(String eventName, String keyWord, User user) {
         this.eventName = eventName;
@@ -41,6 +33,7 @@ public class HotEvents {
     @JsonIgnore
     public User getUser() { return user; }
 
+   @JsonProperty
     public void setUser(User user) { this.user = user; }
 }
     
