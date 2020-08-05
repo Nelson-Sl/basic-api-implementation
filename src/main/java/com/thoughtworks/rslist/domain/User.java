@@ -18,12 +18,14 @@ Basic Input Example
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 @Data
 @NoArgsConstructor
 public class User {
     @Size(max = 8)
+    @NotNull
     private String userName;
     private int age;
     private String gender;
