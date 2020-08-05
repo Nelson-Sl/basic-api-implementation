@@ -1,6 +1,7 @@
 package com.thoughtworks.rslist.api;
 
 import com.thoughtworks.rslist.domain.User;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,19 +31,20 @@ public class RsController {
     }
 
     @GetMapping("/rs/list")
-    public List<HotEvents> getSpecialRange(@RequestParam(required = false) Integer start,
+    public ResponseEntity<List<HotEvents>> getSpecialRange(@RequestParam(required = false) Integer start,
                                   @RequestParam(required = false) Integer end) {
         if(start == null || end == null) {
-            return rsList;
+            return ResponseEntity.ok(rsList);
         }
-        return rsList.subList(start-1,end);
+        return ResponseEntity.ok(rsList.subList(start-1,end));
     }
 
     @PostMapping("/rs/addEvent")
-    public void addHotEvent(@RequestBody HotEvents newEvent) {
+    public ResponseEntity addHotEvent(@RequestBody HotEvents newEvent) {
         System.out.println(newEvent.getEventName());
         System.out.println(newEvent.getKeyWord());
         rsList.add(newEvent);
+        return ResponseEntity.status(HttpStatus.CREATED).body(String.valueOf(rsList.size()-1));
     }
 
     @PostMapping("/rs/alterEvent")

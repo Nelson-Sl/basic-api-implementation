@@ -1,6 +1,8 @@
 package com.thoughtworks.rslist.api;
 
 import com.thoughtworks.rslist.domain.User;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,12 +25,13 @@ public class UserController {
     }
 
     @PostMapping("/user")
-    public void addUser(@RequestBody @Valid User user) {
+    public ResponseEntity addUser(@RequestBody @Valid User user) {
         for(User existingUser: userList) {
             if(existingUser.getUserName().equals(user.getUserName())) {
-                return ;
+                return ResponseEntity.ok().build();
             }
         }
         userList.add(user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(String.valueOf(userList.size()-1));
     }
 }
