@@ -3,19 +3,13 @@ package com.thoughtworks.rslist;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thoughtworks.rslist.api.UserController;
 import com.thoughtworks.rslist.domain.User;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MockMvcBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -33,18 +27,7 @@ public class UserValidateTest {
     }
 
     @Test
-    void shouldSuccessfullyAddUser() throws Exception {
-        User user = new User("Alibaba",20,"Male","a@b.com","11234567890");
-        ObjectMapper objectMapper = new ObjectMapper();
-        String userInfo = objectMapper.writeValueAsString(user);
-        mockMvc.perform(post("/user")
-                .content(userInfo).contentType("application/json; charset=UTF-8"))
-                .andExpect(status().isOk());
-        Assertions.assertEquals(4, UserController.getUserList().size());
-    }
-
-    @Test
-    void userShouldNotBeAddedWithNameMoreThan8Characters() throws Exception {
+    void userWithNameMoreThan8CharactersCanNotRegister() throws Exception {
         User user = new User("Alibabaal",20,"Male","a@b.com","11234567890");
         ObjectMapper objectMapper = new ObjectMapper();
         String userInfo = objectMapper.writeValueAsString(user);
@@ -54,7 +37,7 @@ public class UserValidateTest {
     }
 
     @Test
-    void userShouldNotBeAddedWithNullName() throws Exception {
+    void userWithNullNameCanNotRegister() throws Exception {
         User user = new User(null,20,"Male","a@b.com","11234567890");
         ObjectMapper objectMapper = new ObjectMapper();
         String userInfo = objectMapper.writeValueAsString(user);
@@ -64,7 +47,7 @@ public class UserValidateTest {
     }
 
     @Test
-    void userShouldNotBeAddedWithNullGender() throws Exception {
+    void userWithNullGenderCanNotRegister() throws Exception {
         User user = new User("Alibaba",20,null,"a@b.com","11234567890");
         ObjectMapper objectMapper = new ObjectMapper();
         String userInfo = objectMapper.writeValueAsString(user);
@@ -74,7 +57,7 @@ public class UserValidateTest {
     }
 
     @Test
-    void userShouldNotBeAddedWithAgeLessThan18() throws Exception {
+    void userWithAgeLessThan18CanNotRegister() throws Exception {
         User user = new User("Alibaba",17,"Male","a@b.com","11234567890");
         ObjectMapper objectMapper = new ObjectMapper();
         String userInfo = objectMapper.writeValueAsString(user);
@@ -84,7 +67,7 @@ public class UserValidateTest {
     }
 
     @Test
-    void userShouldNotBeAddedWithAgeMoreThan100() throws Exception {
+    void userWithAgeMoreThan100CanNotRegister() throws Exception {
         User user = new User("Alibaba",150,"Male","a@b.com","11234567890");
         ObjectMapper objectMapper = new ObjectMapper();
         String userInfo = objectMapper.writeValueAsString(user);
@@ -94,7 +77,7 @@ public class UserValidateTest {
     }
 
     @Test
-    void userShouldNotBeAddedWithEmailInIncorrectFormat() throws Exception {
+    void userWithIncorrectEmailFormatCanNotRegister() throws Exception {
         User user = new User("Alibaba",20,"Male","ab.com","11234567890");
         ObjectMapper objectMapper = new ObjectMapper();
         String userInfo = objectMapper.writeValueAsString(user);
@@ -104,7 +87,7 @@ public class UserValidateTest {
     }
 
     @Test
-    void userShouldNotBeAddedWithPhoneInIncorrectFormat() throws Exception {
+    void userWithIncorrectPhoneFormatCanNotRegister() throws Exception {
         User user = new User("Alibaba",20,"Male","a@b.com","1123456789");
         ObjectMapper objectMapper = new ObjectMapper();
         String userInfo = objectMapper.writeValueAsString(user);

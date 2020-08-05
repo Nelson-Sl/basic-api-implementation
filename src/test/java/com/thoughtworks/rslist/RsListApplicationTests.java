@@ -177,17 +177,6 @@ class RsListApplicationTests {
     }
 
     @Test
-    void canNotAddHotEventForInvalidUser() throws Exception {
-        User eventUser = new User("Eva",8,"Female", "eva@sina.cn","17458957459");
-        HotEvents newEvent = new HotEvents("第四条事件","无分类", eventUser);
-        ObjectMapper objectMapper = new ObjectMapper();
-        String userStr = objectMapper.writeValueAsString(eventUser);
-
-        mockMvcUserController.perform(post("/user").content(userStr).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     void changeHotEvent() throws Exception {
         mockMvcRsController.perform(post("/rs/alterEvent")
                 .param("indexStr", "1")
@@ -208,10 +197,13 @@ class RsListApplicationTests {
         mockMvcRsController.perform(get("/rs/list"))
                 .andExpect(jsonPath("$[0].eventName",is("特朗普辞职")))
                 .andExpect(jsonPath("$[0].keyWord",is("社会新闻")))
+                .andExpect(jsonPath("$[0]",hasKey("user")))
                 .andExpect(jsonPath("$[1].eventName",is("乘风破浪的姐姐")))
                 .andExpect(jsonPath("$[1].keyWord",is("无分类")))
+                .andExpect(jsonPath("$[0]",hasKey("user")))
                 .andExpect(jsonPath("$[2].eventName",is("第三条事件")))
                 .andExpect(jsonPath("$[2].keyWord",is("娱乐新闻")))
+                .andExpect(jsonPath("$[0]",hasKey("user")))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -227,8 +219,10 @@ class RsListApplicationTests {
         mockMvcRsController.perform(get("/rs/list"))
                 .andExpect(jsonPath("$[0].eventName",is("第二条事件")))
                 .andExpect(jsonPath("$[0].keyWord",is("无分类")))
+                .andExpect(jsonPath("$[0]",hasKey("user")))
                 .andExpect(jsonPath("$[1].eventName",is("第三条事件")))
                 .andExpect(jsonPath("$[1].keyWord",is("无分类")))
+                .andExpect(jsonPath("$[1]",hasKey("user")))
                 .andExpect(status().isOk())
                 .andReturn();
     }
