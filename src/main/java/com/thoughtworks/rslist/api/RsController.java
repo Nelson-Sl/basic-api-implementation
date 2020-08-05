@@ -1,6 +1,7 @@
 package com.thoughtworks.rslist.api;
 
 import com.thoughtworks.rslist.domain.User;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.thoughtworks.rslist.domain.HotEvents;
@@ -24,8 +25,8 @@ public class RsController {
 
 
     @GetMapping("/rs/list/{index}")
-    public HotEvents getSpecialEvents(@PathVariable int index) {
-        return rsList.get(index - 1);
+    public ResponseEntity<HotEvents> getSpecialEvents(@PathVariable int index) {
+        return ResponseEntity.ok(rsList.get(index-1));
     }
 
     @GetMapping("/rs/list")
