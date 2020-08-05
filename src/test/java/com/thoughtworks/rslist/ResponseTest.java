@@ -65,4 +65,13 @@ public class ResponseTest {
                 .andExpect(status().isCreated())
                 .andExpect(content().string("3"));
     }
+
+    @Test
+    void successAlterEventsSendOk() throws Exception {
+        mockMvc.perform(post("/rs/alterEvent")
+                .param("indexStr", "1")
+                .param("eventName", "特朗普辞职")
+                .param("keyWord", "社会新闻"))
+                .andExpect(status().isOk());
+    }
 }

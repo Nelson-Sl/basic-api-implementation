@@ -48,7 +48,7 @@ public class RsController {
     }
 
     @PostMapping("/rs/alterEvent")
-    public void alterHotEvent(@RequestParam String indexStr,
+    public ResponseEntity alterHotEvent(@RequestParam String indexStr,
                               @RequestParam(required = false) String eventName,
                               @RequestParam(required = false) String keyWord) {
         int index = Integer.parseInt(indexStr);
@@ -58,12 +58,13 @@ public class RsController {
         if(keyWord != null) {
             rsList.get(index - 1).setKeyWord(keyWord);
         }
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/rs/deleteEvent")
-    public void deleteHotEvent(@RequestParam String indexStr) {
+    public ResponseEntity deleteHotEvent(@RequestParam String indexStr) {
         int index = Integer.parseInt(indexStr);
-        rsList.remove(index-1);
+        return ResponseEntity.ok(rsList.remove(index-1));
     }
 
 
