@@ -108,4 +108,14 @@ public class ResponseTest {
                 .andExpect(status().isOk())
                 .andReturn();
     }
+
+    @Test
+    void getSingleEventsWithoutUsersData() throws Exception {
+        mockMvcRsController.perform(get("/rs/list/1"))
+                .andExpect(jsonPath("$.eventName",is("第一条事件")))
+                .andExpect(jsonPath("$.keyWord",is("无分类")))
+                .andExpect(jsonPath("$",not(hasKey("user"))))
+                .andExpect(status().isOk())
+                .andReturn();
+    }
 }
