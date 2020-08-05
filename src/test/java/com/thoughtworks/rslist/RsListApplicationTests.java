@@ -15,6 +15,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import static org.hamcrest.Matchers.hasKey;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -34,9 +35,19 @@ class RsListApplicationTests {
     }
 
     @Test
-    void contextLoads() throws Exception {
+    void getAllEvents() throws Exception {
         mockMvc.perform(get("/rs/list"))
-                .andExpect(content().string("[第一条事件, 第二条事件, 第三条事件]"));
+                .andExpect(jsonPath("$[0].eventName",is("第一条事件")))
+                .andExpect(jsonPath("$[0].keyWord",is("无分类")))
+                .andExpect(jsonPath("$[0]",hasKey("user")))
+                .andExpect(jsonPath("$[1].eventName",is("第二条事件")))
+                .andExpect(jsonPath("$[1].keyWord",is("无分类")))
+                .andExpect(jsonPath("$[1]",hasKey("user")))
+                .andExpect(jsonPath("$[2].eventName",is("第三条事件")))
+                .andExpect(jsonPath("$[2].keyWord",is("无分类")))
+                .andExpect(jsonPath("$[2]",hasKey("user")))
+                .andExpect(status().isOk())
+                .andReturn();
     }
 
     @Test
@@ -44,16 +55,19 @@ class RsListApplicationTests {
         mockMvc.perform(get("/rs/list/1"))
                 .andExpect(jsonPath("$.eventName",is("第一条事件")))
                 .andExpect(jsonPath("$.keyWord",is("无分类")))
+                .andExpect(jsonPath("$.user.userName",is("Tony")))
                 .andExpect(status().isOk())
                 .andReturn();
         mockMvc.perform(get("/rs/list/2"))
                 .andExpect(jsonPath("$.eventName",is("第二条事件")))
                 .andExpect(jsonPath("$.keyWord",is("无分类")))
+                .andExpect(jsonPath("$.user.userName",is("Mark")))
                 .andExpect(status().isOk())
                 .andReturn();
         mockMvc.perform(get("/rs/list/3"))
                 .andExpect(jsonPath("$.eventName",is("第三条事件")))
                 .andExpect(jsonPath("$.keyWord",is("无分类")))
+                .andExpect(jsonPath("$.user.userName",is("Jenny")))
                 .andExpect(status().isOk())
                 .andReturn();
     }
@@ -63,24 +77,31 @@ class RsListApplicationTests {
         mockMvc.perform(get("/rs/list?start=1&end=2"))
                 .andExpect(jsonPath("$[0].eventName",is("第一条事件")))
                 .andExpect(jsonPath("$[0].keyWord",is("无分类")))
+                .andExpect(jsonPath("$[0].user.userName",is("Tony")))
                 .andExpect(jsonPath("$[1].eventName",is("第二条事件")))
                 .andExpect(jsonPath("$[1].keyWord",is("无分类")))
+                .andExpect(jsonPath("$[1].user.userName",is("Mark")))
                 .andExpect(status().isOk())
                 .andReturn();
         mockMvc.perform(get("/rs/list?start=2&end=3"))
                 .andExpect(jsonPath("$[0].eventName",is("第二条事件")))
                 .andExpect(jsonPath("$[0].keyWord",is("无分类")))
+                .andExpect(jsonPath("$[0].user.userName",is("Mark")))
                 .andExpect(jsonPath("$[1].eventName",is("第三条事件")))
                 .andExpect(jsonPath("$[1].keyWord",is("无分类")))
+                .andExpect(jsonPath("$[1].user.userName",is("Jenny")))
                 .andExpect(status().isOk())
                 .andReturn();
         mockMvc.perform(get("/rs/list?start=1&end=3"))
                 .andExpect(jsonPath("$[0].eventName",is("第一条事件")))
                 .andExpect(jsonPath("$[0].keyWord",is("无分类")))
+                .andExpect(jsonPath("$[0].user.userName",is("Tony")))
                 .andExpect(jsonPath("$[1].eventName",is("第二条事件")))
                 .andExpect(jsonPath("$[1].keyWord",is("无分类")))
+                .andExpect(jsonPath("$[1].user.userName",is("Mark")))
                 .andExpect(jsonPath("$[2].eventName",is("第三条事件")))
                 .andExpect(jsonPath("$[2].keyWord",is("无分类")))
+                .andExpect(jsonPath("$[2].user.userName",is("Jenny")))
                 .andExpect(status().isOk())
                 .andReturn();
     }

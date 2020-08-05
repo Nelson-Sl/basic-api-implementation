@@ -1,9 +1,8 @@
 package com.thoughtworks.rslist.api;
 
+import com.thoughtworks.rslist.domain.User;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thoughtworks.rslist.domain.HotEvents;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,9 +13,15 @@ import java.util.stream.Stream;
 
 @RestController
 public class RsController {
-    private List<HotEvents> rsList = Stream.of(new HotEvents("第一条事件","无分类"),
-            new HotEvents("第二条事件","无分类"),
-            new HotEvents("第三条事件","无分类")).collect(Collectors.toList());
+    private List<HotEvents> rsList = Stream.of(
+            new HotEvents("第一条事件","无分类",
+                    new User("Tony",28,"Male", "tony@sina.cn","17458957454")),
+            new HotEvents("第二条事件","无分类",
+                    new User("Mark",25,"Male", "mark@sina.cn","17458957455")),
+            new HotEvents("第三条事件","无分类",
+                    new User("Jenny",27,"Female", "jenny@sina.cn","17458957456")))
+            .collect(Collectors.toList());;
+
 
     @GetMapping("/rs/list/{index}")
     public HotEvents getSpecialEvents(@PathVariable int index) {
