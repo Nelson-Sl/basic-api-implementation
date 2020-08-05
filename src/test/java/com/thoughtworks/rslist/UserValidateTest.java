@@ -10,11 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MockMvcBuilder;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -39,7 +34,6 @@ public class UserValidateTest {
         mockMvc.perform(post("/user")
                 .content(userInfo).contentType("application/json; charset=UTF-8"))
                 .andExpect(status().isOk());
-        String userList = UserController.getUserList().toString();
         Assertions.assertEquals(1, UserController.getUserList().size());
     }
 
@@ -86,16 +80,6 @@ public class UserValidateTest {
     @Test
     void userShouldNotBeAddedWithAgeMoreThan100() throws Exception {
         User user = new User("Alibaba",150,"Male","a@b.com","11234567890");
-        ObjectMapper objectMapper = new ObjectMapper();
-        String userInfo = objectMapper.writeValueAsString(user);
-        mockMvc.perform(post("/user")
-                .content(userInfo).contentType("application/json; charset=UTF-8"))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void userShouldNotBeAddedWithNullAge() throws Exception {
-        User user = new User("Alibaba",null,"Male","a@b.com","11234567890");
         ObjectMapper objectMapper = new ObjectMapper();
         String userInfo = objectMapper.writeValueAsString(user);
         mockMvc.perform(post("/user")
