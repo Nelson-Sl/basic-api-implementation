@@ -48,4 +48,15 @@ public class ErrorHandlingTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error",is("invalid param")));
     }
+
+    @Test
+    void getExceptionIfUserInputIsNotValid() throws Exception {
+        User user = new User(null,20,"Male","a@b.com","11234567890");
+        ObjectMapper objectMapper = new ObjectMapper();
+        String userInfo = objectMapper.writeValueAsString(user);
+        mockMvc.perform(post("/user")
+                .content(userInfo).contentType("application/json; charset=UTF-8"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error",is("invalid user")));
+    }
 }

@@ -1,12 +1,10 @@
 package com.thoughtworks.rslist.api;
 
 import com.thoughtworks.rslist.domain.User;
-import com.thoughtworks.rslist.exception.CommonError;
 import com.thoughtworks.rslist.exception.InvalidIndexInputException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.thoughtworks.rslist.domain.HotEvents;
@@ -43,7 +41,8 @@ public class RsController {
                                   @RequestParam(required = false) Integer end) {
         if(start == null || end == null) {
             return ResponseEntity.ok(rsList);
-        }else if(start > end) {
+        }
+        if(start >= end) {
             ResponseEntity.status(HttpStatus.BAD_REQUEST);
         }
         return ResponseEntity.ok(rsList.subList(start-1,end));
@@ -75,19 +74,5 @@ public class RsController {
     public ResponseEntity deleteHotEvent(@RequestParam String indexStr) {
         int index = Integer.parseInt(indexStr);
         return ResponseEntity.ok(rsList.remove(index-1));
-    }
-
-    @ExceptionHandler({InvalidIndexInputException.class, MethodArgumentNotValidException.class})
-    public ResponseEntity exceptionHandler(Exception iie) {
-        String errorMessage;
-        CommonError commonError = new CommonError();
-        if(iie instanceof InvalidIndexInputException) {
-            errorMessage = "invalid index";
-        }else{
-            errorMessage = "invalid param";
-        }
-
-        commonError.setError(errorMessage);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(commonError);
     }
 }
