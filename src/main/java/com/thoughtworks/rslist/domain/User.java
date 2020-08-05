@@ -28,6 +28,7 @@ public class User {
     @NotNull
     private String userName;
     private int age;
+    @NotNull
     private String gender;
     private String email;
     private String phone;
