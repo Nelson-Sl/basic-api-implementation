@@ -177,6 +177,17 @@ class RsListApplicationTests {
     }
 
     @Test
+    void canNotAddHotEventForInvalidUser() throws Exception {
+        User eventUser = new User("Eva",8,"Female", "eva@sina.cn","17458957459");
+        HotEvents newEvent = new HotEvents("第四条事件","无分类", eventUser);
+        ObjectMapper objectMapper = new ObjectMapper();
+        String userStr = objectMapper.writeValueAsString(eventUser);
+
+        mockMvcUserController.perform(post("/user").content(userStr).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void changeHotEvent() throws Exception {
         mockMvcRsController.perform(post("/rs/alterEvent")
                 .param("indexStr", "1")
