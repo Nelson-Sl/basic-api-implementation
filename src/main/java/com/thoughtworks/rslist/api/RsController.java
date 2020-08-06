@@ -1,9 +1,13 @@
 package com.thoughtworks.rslist.api;
 
 import com.thoughtworks.rslist.Entity.EventEntity;
+import com.thoughtworks.rslist.Entity.UserEntity;
+import com.thoughtworks.rslist.Entity.VoteEntity;
 import com.thoughtworks.rslist.Repository.EventRepository;
 import com.thoughtworks.rslist.Repository.UserRepository;
+import com.thoughtworks.rslist.Repository.VoteRepository;
 import com.thoughtworks.rslist.domain.User;
+import com.thoughtworks.rslist.domain.Vote;
 import com.thoughtworks.rslist.exception.InvalidIndexInputException;
 import com.thoughtworks.rslist.exception.InvalidRequestParamException;
 import org.springframework.http.HttpStatus;
@@ -32,10 +36,13 @@ public class RsController {
 
             private final EventRepository eventRepository;
             private final UserRepository userRepository;
+            private final VoteRepository voteRepository;
 
-    public RsController(EventRepository eventRepository, UserRepository userRepository) {
+    public RsController(EventRepository eventRepository, UserRepository userRepository,
+        VoteRepository voteRepository) {
         this.eventRepository = eventRepository;
         this.userRepository = userRepository;
+        this.voteRepository = voteRepository;
     }
 
 
@@ -114,5 +121,27 @@ public class RsController {
         }
         EventEntity changedEvent = eventRepository.save(eventChosen);
         return ResponseEntity.status(HttpStatus.OK).body(changedEvent.getUserId());
+    }
+
+    @PostMapping("/rs/vote/{rsEventId}")
+    public ResponseEntity checkVoteStatusForUser (@PathVariable int rsEventId, @RequestBody Vote vote) {
+        if(!isValidForVote(vote)) {
+            return ResponseEntity.badRequest().build();
+        }
+        VoteEntity voteRecord = VoteEntity.builder()
+                .voteNum(vote.getVoteNum())
+                .voteTime(vote.getVoteTime())
+                .userId(vote.getUserId()).build();
+        voteRepository.save(voteRecord);
+        return ResponseEntity.created(null).build();
+    }
+
+    private boolean isValidForVote(Vote vote) {
+        String userId = vote.getUserId();
+        UserEntity checkedUser = userRepository.findById(Integer.valueOf(userId)).get();
+        if(checkedUser.getVote() > vote.getVoteNum()) {
+            return true;
+        }
+        return false;
     }
 }

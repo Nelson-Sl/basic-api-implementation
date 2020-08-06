@@ -4,10 +4,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thoughtworks.rslist.Entity.EventEntity;
 import com.thoughtworks.rslist.Entity.UserEntity;
+import com.thoughtworks.rslist.Entity.VoteEntity;
 import com.thoughtworks.rslist.Repository.EventRepository;
 import com.thoughtworks.rslist.Repository.UserRepository;
+import com.thoughtworks.rslist.Repository.VoteRepository;
 import com.thoughtworks.rslist.domain.HotEvents;
 import com.thoughtworks.rslist.domain.User;
+import com.thoughtworks.rslist.domain.Vote;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +20,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultMatcher;
 
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,6 +44,8 @@ public class DatabaseConnectionTest {
     private UserRepository userRepository;
     @Autowired
     private EventRepository eventRepository;
+    @Autowired
+    private VoteRepository voteRepository;
 
     @BeforeEach
     public void setUp() {
@@ -45,7 +55,7 @@ public class DatabaseConnectionTest {
 
     @Test
     void shouldAddOneUserToRepository() throws Exception {
-        User user = new User("Mark",24,"Male","mark@gmail.com","18888888888");
+        User user = new User("Mark",24,"Male","mark@gmail.com","18888888888",10);
         String userInfo = objectMapper.writeValueAsString(user);
         mockMvc.perform(post("/addUser")
                 .content(userInfo)
@@ -58,7 +68,7 @@ public class DatabaseConnectionTest {
 
     @Test
     void shouldGetUserInfoFromRepository() throws Exception {
-        User user = new User("Mark",24,"Male","mark@gmail.com","18888888888");
+        User user = new User("Mark",24,"Male","mark@gmail.com","18888888888",10);
         String userInfo = objectMapper.writeValueAsString(user);
         String userId = mockMvc.perform(post("/addUser")
                 .content(userInfo)
@@ -77,7 +87,7 @@ public class DatabaseConnectionTest {
 
     @Test
     void shouldDeleteUserFromRepository() throws Exception {
-        User user1 = new User("Mark",24,"Male","mark@gmail.com","18888888888");
+        User user1 = new User("Mark",24,"Male","mark@gmail.com","18888888888",10);
         String userInfo1 = objectMapper.writeValueAsString(user1);
         String userId = mockMvc.perform(post("/addUser")
                 .content(userInfo1)
@@ -92,7 +102,7 @@ public class DatabaseConnectionTest {
 
     @Test
     void shouldAddingEventWhenUsersHadRegistered() throws Exception {
-        User user = new User("Mark",24,"Male","mark@gmail.com","18888888888");
+        User user = new User("Mark",24,"Male","mark@gmail.com","18888888888",10);
         String userInfo = objectMapper.writeValueAsString(user);
         String userId = mockMvc.perform(post("/addUser")
                 .content(userInfo)
@@ -110,7 +120,7 @@ public class DatabaseConnectionTest {
 
     @Test
     void shouldNotAddingEventWhenUsersHadNotRegistered() throws Exception {
-        User user = new User("Mark",24,"Male","mark@gmail.com","18888888888");
+        User user = new User("Mark",24,"Male","mark@gmail.com","18888888888",10);
         String userInfo = objectMapper.writeValueAsString(user);
         mockMvc.perform(post("/addUser")
                 .content(userInfo)
@@ -125,7 +135,7 @@ public class DatabaseConnectionTest {
 
     @Test
     void shouldDeleteUserWithHisEvents() throws Exception {
-        User user1 = new User("Mark",24,"Male","mark@gmail.com","18888888888");
+        User user1 = new User("Mark",24,"Male","mark@gmail.com","18888888888",10);
         String userInfo1 = objectMapper.writeValueAsString(user1);
         String userId = mockMvc.perform(post("/addUser")
                 .content(userInfo1)
@@ -145,7 +155,7 @@ public class DatabaseConnectionTest {
 
     @Test
     void shouldUpdateEventInfoWithTheUserExisting() throws Exception {
-        User user1 = new User("Mark",24,"Male","mark@gmail.com","18888888888");
+        User user1 = new User("Mark",24,"Male","mark@gmail.com","18888888888",10);
         String userInfo1 = objectMapper.writeValueAsString(user1);
         String userId = mockMvc.perform(post("/addUser")
                 .content(userInfo1)
@@ -164,5 +174,37 @@ public class DatabaseConnectionTest {
         assertEquals(1, eventRepository.findAll().size());
         assertEquals("另一个热搜事件",eventRepository.findAll().get(0).getEventName());
         assertEquals("时事",eventRepository.findAll().get(0).getKeyWord());
+    }
+
+    @Test
+    void judgeUserCanVoteForTheEvent() throws Exception {
+        User user1 = new User("Mark",24,"Male","mark@gmail.com","18888888888",10);
+        String userInfo1 = objectMapper.writeValueAsString(user1);
+        String userId = mockMvc.perform(post("/addUser")
+                .content(userInfo1)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        HotEvents event = new HotEvents("一个热搜事件","无分类",userId);
+        String eventInfo = objectMapper.writeValueAsString(event);
+        String eventId = mockMvc.perform(post("/rs/addEvent")
+                .content(eventInfo).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Vote userVote = new Vote(5, df.format(System.currentTimeMillis()),userId);
+        Vote anotherUserVote = new Vote(11, df.format(System.currentTimeMillis()),userId);
+        String userVoteInfo = objectMapper.writeValueAsString(userVote);
+        String anotherUserVoteInfo = objectMapper.writeValueAsString(anotherUserVote);
+        mockMvc.perform(post("/rs/vote/"+eventId)
+                .content(userVoteInfo).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated());
+        List<VoteEntity> voteTest = voteRepository.findAll();
+        assertEquals(1,voteRepository.findAll().size());
+        assertEquals(5, voteRepository.findAll().get(0).getVoteNum());
+        assertEquals(userId,voteRepository.findAll().get(0).getUserId());
+        mockMvc.perform(post("/rs/vote/"+eventId)
+                .content(anotherUserVoteInfo).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 }

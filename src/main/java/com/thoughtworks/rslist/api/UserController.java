@@ -19,9 +19,9 @@ import java.util.stream.Stream;
 @RestController
 public class UserController {
     private static List<User> userList = Stream.of(
-            new User("Tony",28,"Male", "tony@sina.cn","17458957454"),
-            new User("Mark",25,"Male", "mark@sina.cn","17458957455"),
-            new User("Jenny",27,"Female", "jenny@sina.cn","17458957456"))
+            new User("Tony",28,"Male", "tony@sina.cn","17458957454",10),
+            new User("Mark",25,"Male", "mark@sina.cn","17458957455",10),
+            new User("Jenny",27,"Female", "jenny@sina.cn","17458957456",10))
             .collect(Collectors.toList());
 
     private final UserRepository userRepository;
@@ -53,6 +53,7 @@ public class UserController {
                 .gender(user.getGender())
                 .email(user.getEmail())
                 .phone(user.getPhone())
+                .vote(user.getVote())
                 .build();
 
         UserEntity userInput = userRepository.save(newUser);

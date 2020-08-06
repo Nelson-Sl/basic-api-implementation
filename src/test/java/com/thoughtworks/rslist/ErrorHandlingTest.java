@@ -40,7 +40,7 @@ public class ErrorHandlingTest {
 
     @Test
     void getExceptionIfUserInputOfEventIsNotValid() throws Exception {
-        User user = new User("Alibabaal",20,"Male","a@b.com","11234567890");
+        User user = new User("Alibabaal",20,"Male","a@b.com","11234567890",10);
         HotEvents event = new HotEvents("特朗普辞职","无分类","user");
         ObjectMapper objectMapper = new ObjectMapper();
         String eventInfo = objectMapper.writeValueAsString(event);
@@ -52,7 +52,7 @@ public class ErrorHandlingTest {
 
     @Test
     void getExceptionIfUserInputIsNotValid() throws Exception {
-        User user = new User(null,20,"Male","a@b.com","11234567890");
+        User user = new User(null,20,"Male","a@b.com","11234567890",10);
         ObjectMapper objectMapper = new ObjectMapper();
         String userInfo = objectMapper.writeValueAsString(user);
         mockMvc.perform(post("/user")

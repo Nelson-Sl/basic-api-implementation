@@ -24,7 +24,11 @@ public class UserEntity {
     private String gender;
     private String email;
     private String phone;
+    private Integer vote;
 
     @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "userId")
     private List<EventEntity> eventEntityList;
+
+    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "userId")
+    private List<VoteEntity> voteEntityList;
 }

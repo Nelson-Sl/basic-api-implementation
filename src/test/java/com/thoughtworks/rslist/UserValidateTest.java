@@ -28,7 +28,7 @@ public class UserValidateTest {
 
     @Test
     void userWithNameMoreThan8CharactersCanNotRegister() throws Exception {
-        User user = new User("Alibabaal",20,"Male","a@b.com","11234567890");
+        User user = new User("Alibabaal",20,"Male","a@b.com","11234567890",10);
         ObjectMapper objectMapper = new ObjectMapper();
         String userInfo = objectMapper.writeValueAsString(user);
         mockMvc.perform(post("/user")
@@ -38,7 +38,7 @@ public class UserValidateTest {
 
     @Test
     void userWithNullNameCanNotRegister() throws Exception {
-        User user = new User(null,20,"Male","a@b.com","11234567890");
+        User user = new User(null,20,"Male","a@b.com","11234567890",10);
         ObjectMapper objectMapper = new ObjectMapper();
         String userInfo = objectMapper.writeValueAsString(user);
         mockMvc.perform(post("/user")
@@ -48,7 +48,7 @@ public class UserValidateTest {
 
     @Test
     void userWithNullGenderCanNotRegister() throws Exception {
-        User user = new User("Alibaba",20,null,"a@b.com","11234567890");
+        User user = new User("Alibaba",20,null,"a@b.com","11234567890",10);
         ObjectMapper objectMapper = new ObjectMapper();
         String userInfo = objectMapper.writeValueAsString(user);
         mockMvc.perform(post("/user")
@@ -58,7 +58,7 @@ public class UserValidateTest {
 
     @Test
     void userWithAgeLessThan18CanNotRegister() throws Exception {
-        User user = new User("Alibaba",17,"Male","a@b.com","11234567890");
+        User user = new User("Alibaba",17,"Male","a@b.com","11234567890",10);
         ObjectMapper objectMapper = new ObjectMapper();
         String userInfo = objectMapper.writeValueAsString(user);
         mockMvc.perform(post("/user")
@@ -68,7 +68,7 @@ public class UserValidateTest {
 
     @Test
     void userWithAgeMoreThan100CanNotRegister() throws Exception {
-        User user = new User("Alibaba",150,"Male","a@b.com","11234567890");
+        User user = new User("Alibaba",150,"Male","a@b.com","11234567890",10);
         ObjectMapper objectMapper = new ObjectMapper();
         String userInfo = objectMapper.writeValueAsString(user);
         mockMvc.perform(post("/user")
@@ -78,7 +78,7 @@ public class UserValidateTest {
 
     @Test
     void userWithIncorrectEmailFormatCanNotRegister() throws Exception {
-        User user = new User("Alibaba",20,"Male","ab.com","11234567890");
+        User user = new User("Alibaba",20,"Male","ab.com","11234567890",10);
         ObjectMapper objectMapper = new ObjectMapper();
         String userInfo = objectMapper.writeValueAsString(user);
         mockMvc.perform(post("/user")
@@ -88,7 +88,7 @@ public class UserValidateTest {
 
     @Test
     void userWithIncorrectPhoneFormatCanNotRegister() throws Exception {
-        User user = new User("Alibaba",20,"Male","a@b.com","1123456789");
+        User user = new User("Alibaba",20,"Male","a@b.com","1123456789",10);
         ObjectMapper objectMapper = new ObjectMapper();
         String userInfo = objectMapper.writeValueAsString(user);
         mockMvc.perform(post("/user")
