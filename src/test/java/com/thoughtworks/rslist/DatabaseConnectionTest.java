@@ -60,12 +60,13 @@ public class DatabaseConnectionTest {
     void shouldGetUserInfoFromRepository() throws Exception {
         User user = new User("Mark",24,"Male","mark@gmail.com","18888888888");
         String userInfo = objectMapper.writeValueAsString(user);
-        mockMvc.perform(post("/addUser")
+        String userId = mockMvc.perform(post("/addUser")
                 .content(userInfo)
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
         List<UserEntity> users = userRepository.findAll();
-        mockMvc.perform(get("/user/1"))
+        mockMvc.perform(get("/user/" + userId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.userName",is("Mark")))
                 .andExpect(jsonPath("$.gender",is("Male")))
@@ -105,6 +106,21 @@ public class DatabaseConnectionTest {
                         .andExpect(status().isCreated());
         assertEquals(1, eventRepository.findAll().size());
         assertEquals("一个热搜事件",eventRepository.findAll().get(0).getEventName());
+    }
+
+    @Test
+    void shouldNotAddingEventWhenUsersHadNotRegistered() throws Exception {
+        User user = new User("Mark",24,"Male","mark@gmail.com","18888888888");
+        String userInfo = objectMapper.writeValueAsString(user);
+        mockMvc.perform(post("/addUser")
+                .content(userInfo)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated());
+        HotEvents event = new HotEvents("一个热搜事件","无分类","33");
+        String eventInfo = objectMapper.writeValueAsString(event);
+        mockMvc.perform(post("/rs/addEvent")
+                .content(eventInfo).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 
 }
