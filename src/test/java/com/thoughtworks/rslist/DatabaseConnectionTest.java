@@ -123,4 +123,24 @@ public class DatabaseConnectionTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    void shouldDeleteUserWithHisEvents() throws Exception {
+        User user1 = new User("Mark",24,"Male","mark@gmail.com","18888888888");
+        String userInfo1 = objectMapper.writeValueAsString(user1);
+        String userId = mockMvc.perform(post("/addUser")
+                .content(userInfo1)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        HotEvents event = new HotEvents("一个热搜事件","无分类",userId);
+        String eventInfo = objectMapper.writeValueAsString(event);
+        mockMvc.perform(post("/rs/addEvent")
+                .content(eventInfo).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated());
+        mockMvc.perform(delete("/deleteUser/" + userId))
+                .andExpect(status().isOk());
+        assertEquals(0,userRepository.findAll().size());
+        assertEquals(0,eventRepository.findAll().size());
+    }
+
 }
