@@ -55,14 +55,21 @@ public class UserController {
                 .phone(user.getPhone())
                 .build();
 
-        userRepository.save(newUser);
-        return ResponseEntity.created(null).build();
+        UserEntity userInput = userRepository.save(newUser);
+        int userId = userInput.getId();
+        return ResponseEntity.status(HttpStatus.CREATED).body(userId);
     }
 
     @GetMapping("/user/{index}")
     public ResponseEntity<UserEntity> searchUserFromRepository(@PathVariable int index) {
         UserEntity searchResult = userRepository.findById(index);
         return ResponseEntity.ok(searchResult);
+    }
+
+    @DeleteMapping("/deleteUser/{index}")
+    public ResponseEntity deleteUserFromRepository(@PathVariable int index) {
+        userRepository.deleteById(index);
+        return ResponseEntity.ok().build();
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

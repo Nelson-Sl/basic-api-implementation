@@ -17,19 +17,19 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.hamcrest.Matchers.is;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 public class DatabaseConnectionTest {
     ObjectMapper objectMapper = new ObjectMapper();
     @Autowired
-    private UserRepository userRepository;
-    @Autowired
     private MockMvc mockMvc;
+    @Autowired
+    private UserRepository userRepository;
+
 
     @BeforeEach
     public void setUp() {
@@ -57,9 +57,7 @@ public class DatabaseConnectionTest {
                 .content(userInfo)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
-        List<UserEntity> userEntities = userRepository.findAll();
-        assertEquals(1,userEntities.size());
-        assertEquals("Mark",userEntities.get(0).getUserName());
+        List<UserEntity> users = userRepository.findAll();
         mockMvc.perform(get("/user/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.userName",is("Mark")))
@@ -68,5 +66,20 @@ public class DatabaseConnectionTest {
                 .andExpect(jsonPath("$.email",is("mark@gmail.com")))
                 .andExpect(jsonPath("$.phone",is("18888888888")));
     }
-    
+
+    @Test
+    void shouldDeleteUserFromRepository() throws Exception {
+        User user1 = new User("Mark",24,"Male","mark@gmail.com","18888888888");
+        String userInfo1 = objectMapper.writeValueAsString(user1);
+        String userId = mockMvc.perform(post("/addUser")
+                .content(userInfo1)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        mockMvc.perform(delete("/deleteUser/" + userId)) 
+                .andExpect(status().isOk());
+        List<UserEntity> userList = userRepository.findAll();
+        assertEquals(0,userList.size());
+    }
+
 }
