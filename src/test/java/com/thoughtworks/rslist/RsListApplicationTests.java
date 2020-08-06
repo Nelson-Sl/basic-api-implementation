@@ -35,7 +35,7 @@ class RsListApplicationTests {
     @BeforeEach
     public void init() {
         mockMvcRsController = MockMvcBuilders.standaloneSetup(new RsController()).build();
-        mockMvcUserController = MockMvcBuilders.standaloneSetup(new UserController()).build();
+    //    mockMvcUserController = MockMvcBuilders.standaloneSetup(new UserController()).build();
     }
 
     @Test

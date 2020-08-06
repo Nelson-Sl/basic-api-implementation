@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -23,8 +24,11 @@ public class UserController {
             new User("Jenny",27,"Female", "jenny@sina.cn","17458957456"))
             .collect(Collectors.toList());
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+
+    public UserController(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     public static List<User> getUserList() {
         return userList;
@@ -53,6 +57,12 @@ public class UserController {
 
         userRepository.save(newUser);
         return ResponseEntity.created(null).build();
+    }
+
+    @GetMapping("/user/{index}")
+    public ResponseEntity<UserEntity> searchUserFromRepository(@PathVariable int index) {
+        UserEntity searchResult = userRepository.findById(index);
+        return ResponseEntity.ok(searchResult);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

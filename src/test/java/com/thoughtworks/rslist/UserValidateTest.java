@@ -23,7 +23,7 @@ public class UserValidateTest {
 
     @BeforeEach
     public void init() {
-        mockMvc = MockMvcBuilders.standaloneSetup(new UserController()).build();
+        // mockMvc = MockMvcBuilders.standaloneSetup(new UserController()).build();
     }
 
     @Test
