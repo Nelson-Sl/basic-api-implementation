@@ -143,4 +143,26 @@ public class DatabaseConnectionTest {
         assertEquals(0,eventRepository.findAll().size());
     }
 
+    @Test
+    void shouldUpdateEventInfoWithTheUserExisting() throws Exception {
+        User user1 = new User("Mark",24,"Male","mark@gmail.com","18888888888");
+        String userInfo1 = objectMapper.writeValueAsString(user1);
+        String userId = mockMvc.perform(post("/addUser")
+                .content(userInfo1)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        HotEvents event = new HotEvents("一个热搜事件","无分类",userId);
+        String eventInfo = objectMapper.writeValueAsString(event);
+        String eventId = mockMvc.perform(post("/rs/addEvent")
+                .content(eventInfo).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        String patchUrl = "/rs/" +eventId+"?eventName=另一个热搜事件&keyWord=时事";
+        mockMvc.perform(patch(patchUrl))
+                .andExpect(status().isOk());
+        assertEquals(1, eventRepository.findAll().size());
+        assertEquals("另一个热搜事件",eventRepository.findAll().get(0).getEventName());
+        assertEquals("时事",eventRepository.findAll().get(0).getKeyWord());
+    }
 }

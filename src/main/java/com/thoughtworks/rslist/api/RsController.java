@@ -15,6 +15,7 @@ import com.thoughtworks.rslist.domain.HotEvents;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -74,7 +75,7 @@ public class RsController {
                 .userId(newEvent.getUserId())
                 .build();
         EventEntity eventDataSaved = eventRepository.save(eventData);
-        return ResponseEntity.status(HttpStatus.CREATED).body(eventDataSaved.getUserId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(String.valueOf(eventDataSaved.getId()));
     }
 
     @PostMapping("/rs/alterEvent")
@@ -95,5 +96,23 @@ public class RsController {
     public ResponseEntity deleteHotEvent(@RequestParam String indexStr) {
         int index = Integer.parseInt(indexStr);
         return ResponseEntity.ok(rsList.remove(index-1));
+    }
+
+    @PatchMapping("/rs/{rsEventId}")
+    public ResponseEntity updateEventIfUserExists(@PathVariable int rsEventId,
+                                                  @RequestParam(required=false) String eventName,
+                                                  @RequestParam(required=false) String keyWord) {
+        EventEntity eventChosen = eventRepository.findById(rsEventId).get();
+        String userIdChosen = eventChosen.getUserId();
+        if(!userRepository.existsById(Integer.valueOf(userIdChosen))){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+        if(eventName != null) {
+            eventChosen.setEventName(eventName);
+        }if(keyWord != null) {
+            eventChosen.setKeyWord(keyWord);
+        }
+        EventEntity changedEvent = eventRepository.save(eventChosen);
+        return ResponseEntity.status(HttpStatus.OK).body(changedEvent.getUserId());
     }
 }
