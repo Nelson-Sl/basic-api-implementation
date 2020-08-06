@@ -11,8 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.thoughtworks.rslist.domain.HotEvents;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -43,16 +41,18 @@ public class RsController {
         if(start == null || end == null) {
             return ResponseEntity.ok(rsList);
         }
-        if(start >= end) {
+        if(isInvalid(start,end)) {
             throw new InvalidRequestParamException("invalid request param");
         }
         return ResponseEntity.ok(rsList.subList(start-1,end));
     }
 
+    private boolean isInvalid(Integer start, Integer end) {
+        return start >= end || start < 0 || start > rsList.size() || end < 0;
+    }
+
     @PostMapping("/rs/addEvent")
     public ResponseEntity addHotEvent(@Validated @RequestBody HotEvents newEvent) {
-        System.out.println(newEvent.getEventName());
-        System.out.println(newEvent.getKeyWord());
         rsList.add(newEvent);
         return ResponseEntity.status(HttpStatus.CREATED).body(String.valueOf(rsList.size()-1));
     }

@@ -2,7 +2,6 @@ package com.thoughtworks.rslist.api;
 
 import com.thoughtworks.rslist.domain.User;
 import com.thoughtworks.rslist.exception.CommonError;
-import com.thoughtworks.rslist.exception.InvalidIndexInputException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -37,9 +36,8 @@ public class UserController {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity exceptionHandler(MethodArgumentNotValidException exception) {
+    public ResponseEntity handleException(MethodArgumentNotValidException ex) {
         CommonError commonError = new CommonError();
-
         commonError.setError("invalid user");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(commonError);
     }
