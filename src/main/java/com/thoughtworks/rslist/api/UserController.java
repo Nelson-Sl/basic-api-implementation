@@ -1,7 +1,10 @@
 package com.thoughtworks.rslist.api;
 
+import com.thoughtworks.rslist.Entity.UserEntity;
+import com.thoughtworks.rslist.Repository.UserRepository;
 import com.thoughtworks.rslist.domain.User;
 import com.thoughtworks.rslist.exception.CommonError;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -20,6 +23,9 @@ public class UserController {
             new User("Jenny",27,"Female", "jenny@sina.cn","17458957456"))
             .collect(Collectors.toList());
 
+    @Autowired
+    private UserRepository userRepository;
+
     public static List<User> getUserList() {
         return userList;
     }
@@ -33,6 +39,20 @@ public class UserController {
         }
         userList.add(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(String.valueOf(userList.size()-1));
+    }
+
+    @PostMapping("/addUser")
+    public ResponseEntity addUserToRepository(@RequestBody @Valid User user){
+        UserEntity newUser = UserEntity.builder()
+                .userName(user.getUserName())
+                .age(user.getAge())
+                .gender(user.getGender())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .build();
+
+        userRepository.save(newUser);
+        return ResponseEntity.created(null).build();
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
