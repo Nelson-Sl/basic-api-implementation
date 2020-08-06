@@ -1,8 +1,12 @@
 package com.thoughtworks.rslist;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.thoughtworks.rslist.Entity.EventEntity;
 import com.thoughtworks.rslist.Entity.UserEntity;
+import com.thoughtworks.rslist.Repository.EventRepository;
 import com.thoughtworks.rslist.Repository.UserRepository;
+import com.thoughtworks.rslist.domain.HotEvents;
 import com.thoughtworks.rslist.domain.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultMatcher;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.hamcrest.Matchers.is;
@@ -29,11 +34,13 @@ public class DatabaseConnectionTest {
     private MockMvc mockMvc;
     @Autowired
     private UserRepository userRepository;
-
+    @Autowired
+    private EventRepository eventRepository;
 
     @BeforeEach
     public void setUp() {
         userRepository.deleteAll();
+        eventRepository.deleteAll();
     }
 
     @Test
@@ -80,6 +87,24 @@ public class DatabaseConnectionTest {
                 .andExpect(status().isOk());
         List<UserEntity> userList = userRepository.findAll();
         assertEquals(0,userList.size());
+    }
+
+    @Test
+    void shouldAddingEventWhenUsersHadRegistered() throws Exception {
+        User user = new User("Mark",24,"Male","mark@gmail.com","18888888888");
+        String userInfo = objectMapper.writeValueAsString(user);
+        String userId = mockMvc.perform(post("/addUser")
+                .content(userInfo)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        HotEvents event = new HotEvents("一个热搜事件","无分类",userId);
+        String eventInfo = objectMapper.writeValueAsString(event);
+        mockMvc.perform(post("/rs/addEvent")
+                        .content(eventInfo).contentType(MediaType.APPLICATION_JSON))
+                        .andExpect(status().isCreated());
+        assertEquals(1, eventRepository.findAll().size());
+        assertEquals("一个热搜事件",eventRepository.findAll().get(0).getEventName());
     }
 
 }

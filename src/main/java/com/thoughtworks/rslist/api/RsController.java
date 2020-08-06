@@ -1,5 +1,8 @@
 package com.thoughtworks.rslist.api;
 
+import com.thoughtworks.rslist.Entity.EventEntity;
+import com.thoughtworks.rslist.Repository.EventRepository;
+import com.thoughtworks.rslist.Repository.UserRepository;
 import com.thoughtworks.rslist.domain.User;
 import com.thoughtworks.rslist.exception.InvalidIndexInputException;
 import com.thoughtworks.rslist.exception.InvalidRequestParamException;
@@ -19,12 +22,20 @@ import java.util.stream.Stream;
 public class RsController {
     private List<HotEvents> rsList = Stream.of(
             new HotEvents("第一条事件","无分类",
-                    new User("Tony",28,"Male", "tony@sina.cn","17458957454")),
+                    "1"),
             new HotEvents("第二条事件","无分类",
-                    new User("Mark",25,"Male", "mark@sina.cn","17458957455")),
+                    "2"),
             new HotEvents("第三条事件","无分类",
-                    new User("Jenny",27,"Female", "jenny@sina.cn","17458957456")))
+                    "3"))
             .collect(Collectors.toList());;
+
+            private final EventRepository eventRepository;
+            private final UserRepository userRepository;
+
+    public RsController(EventRepository eventRepository, UserRepository userRepository) {
+        this.eventRepository = eventRepository;
+        this.userRepository = userRepository;
+    }
 
 
     @GetMapping("/rs/list/{index}")
@@ -53,8 +64,17 @@ public class RsController {
 
     @PostMapping("/rs/addEvent")
     public ResponseEntity addHotEvent(@Validated @RequestBody HotEvents newEvent) {
-        rsList.add(newEvent);
-        return ResponseEntity.status(HttpStatus.CREATED).body(String.valueOf(rsList.size()-1));
+        String userId = newEvent.getUserId();
+        if(!userRepository.existsById(Integer.valueOf(userId))) {
+            return ResponseEntity.badRequest().build();
+        }
+        EventEntity eventData = EventEntity.builder()
+                .eventName(newEvent.getEventName())
+                .keyWord(newEvent.getKeyWord())
+                .userId(newEvent.getUserId())
+                .build();
+        EventEntity eventDataSaved = eventRepository.save(eventData);
+        return ResponseEntity.status(HttpStatus.CREATED).body(eventDataSaved.getUserId());
     }
 
     @PostMapping("/rs/alterEvent")

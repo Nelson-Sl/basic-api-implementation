@@ -29,7 +29,7 @@ public class ResponseTest {
 
     @BeforeEach
     public void init() {
-        mockMvcRsController = MockMvcBuilders.standaloneSetup(new RsController()).build();
+//        mockMvcRsController = MockMvcBuilders.standaloneSetup(new RsController()).build();
         // mockMvcUserController = MockMvcBuilders.standaloneSetup(new UserController()).build();
     }
 
@@ -62,7 +62,7 @@ public class ResponseTest {
     @Test
     void successCreatedEventsAndUserSend201WithIndex() throws Exception {
         User eventUser = new User("Amy",18,"Female", "amy@sina.cn","17458957457");
-        HotEvents newEvent = new HotEvents("第四条事件","无分类", eventUser);
+        HotEvents newEvent = new HotEvents("第四条事件","无分类", "eventUser");
         ObjectMapper objectMapper = new ObjectMapper();
         String newEventStr = objectMapper.writeValueAsString(newEvent);
         String userStr = objectMapper.writeValueAsString(eventUser);

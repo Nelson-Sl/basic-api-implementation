@@ -9,7 +9,7 @@ import javax.persistence.*;
 
 @Data
 @Entity
-@Table(name = "rsEvents")
+@Table(name = "users")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

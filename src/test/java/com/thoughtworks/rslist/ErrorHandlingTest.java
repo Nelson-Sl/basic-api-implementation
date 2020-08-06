@@ -41,7 +41,7 @@ public class ErrorHandlingTest {
     @Test
     void getExceptionIfUserInputOfEventIsNotValid() throws Exception {
         User user = new User("Alibabaal",20,"Male","a@b.com","11234567890");
-        HotEvents event = new HotEvents("特朗普辞职","无分类",user);
+        HotEvents event = new HotEvents("特朗普辞职","无分类","user");
         ObjectMapper objectMapper = new ObjectMapper();
         String eventInfo = objectMapper.writeValueAsString(event);
         mockMvc.perform(post("/rs/addEvent")
