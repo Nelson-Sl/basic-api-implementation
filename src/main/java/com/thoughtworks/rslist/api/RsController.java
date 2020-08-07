@@ -25,14 +25,7 @@ import java.util.stream.Stream;
 
 @RestController
 public class RsController {
-    private List<HotEvents> rsList = Stream.of(
-            new HotEvents("第一条事件","无分类",
-                    "1",10),
-            new HotEvents("第二条事件","无分类",
-                    "2",10),
-            new HotEvents("第三条事件","无分类",
-                    "3",10))
-            .collect(Collectors.toList());
+
 
     //final使用构造器注入IoC容器
     private final EventRepository eventRepository;
@@ -50,7 +43,7 @@ public class RsController {
 
     @GetMapping("/rs/list/{index}")
     public ResponseEntity getSpecialEvents(@PathVariable int index) throws InvalidIndexInputException {
-        if(index > rsList.size()) {
+        if(!eventRepository.existsById(index)) {
             throw new InvalidIndexInputException("invalid index");
         }
         EventEntity event = eventRepository.findById(index).get();
@@ -72,7 +65,7 @@ public class RsController {
     }
 
     private boolean isInvalid(Integer start, Integer end) {
-        return start >= end || start < 0 || start > rsList.size() || end < 0;
+        return start >= end || start < 0 || start > eventRepository.count() || end < 0;
     }
 
     @PostMapping("/rs/addEvent")

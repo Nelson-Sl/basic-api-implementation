@@ -1,10 +1,8 @@
 package com.thoughtworks.rslist;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thoughtworks.rslist.Entity.EventEntity;
 import com.thoughtworks.rslist.Entity.UserEntity;
-import com.thoughtworks.rslist.Entity.VoteEntity;
 import com.thoughtworks.rslist.Repository.EventRepository;
 import com.thoughtworks.rslist.Repository.UserRepository;
 import com.thoughtworks.rslist.Repository.VoteRepository;
@@ -18,15 +16,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultMatcher;
-
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
+
 
 import static org.hamcrest.Matchers.hasKey;
 import static org.junit.jupiter.api.Assertions.assertEquals;

@@ -10,37 +10,14 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @RestController
 public class UserController {
-    private static List<User> userList = Stream.of(
-            new User("Tony",28,"Male", "tony@sina.cn","17458957454",10),
-            new User("Mark",25,"Male", "mark@sina.cn","17458957455",10),
-            new User("Jenny",27,"Female", "jenny@sina.cn","17458957456",10))
-            .collect(Collectors.toList());
 
     private final UserRepository userRepository;
 
     public UserController(UserRepository userRepository) {
         this.userRepository = userRepository;
-    }
-
-    public static List<User> getUserList() {
-        return userList;
-    }
-
-    @PostMapping("/user")
-    public ResponseEntity addUser(@RequestBody @Valid User user) {
-        for(User existingUser: userList) {
-            if(existingUser.getUserName().equals(user.getUserName())) {
-                return ResponseEntity.ok().build();
-            }
-        }
-        userList.add(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(String.valueOf(userList.size()-1));
     }
 
     @PostMapping("/addUser")
