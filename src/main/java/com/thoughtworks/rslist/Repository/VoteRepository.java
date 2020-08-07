@@ -9,4 +9,5 @@ import java.util.List;
 public interface VoteRepository extends CrudRepository<VoteEntity,Integer> {
     List<VoteEntity> findAll();
     List<VoteEntity> findByVoteTimeBetween(LocalDateTime start, LocalDateTime end);
+    VoteEntity findByIdAndUserId(int voteId, String userId);
 }

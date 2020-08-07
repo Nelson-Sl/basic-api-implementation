@@ -146,7 +146,7 @@ public class RsController {
                 .voteNum(vote.getVoteNum())
                 .voteTime(vote.getVoteTime())
                 .userId(vote.getUserId()).build();
-        voteRepository.save(voteRecord);
+        VoteEntity newVote = voteRepository.save(voteRecord);
 
         voteEvent.get().setVoteNum(voteEvent.get().getVoteNum() + vote.getVoteNum());
         eventRepository.save(voteEvent.get());
@@ -154,7 +154,7 @@ public class RsController {
         voteUser.get().setVote(voteUser.get().getVote() - vote.getVoteNum());
         userRepository.save(voteUser.get());
 
-        return ResponseEntity.created(null).build();
+        return ResponseEntity.status(HttpStatus.CREATED).body(newVote.getId());
     }
 
     private boolean isValidForVote(Vote vote) {
@@ -171,6 +171,21 @@ public class RsController {
             @RequestParam String startTime, @RequestParam String endTime) {
         LocalDateTime startDate = LocalDateTime.parse(startTime,dateTimeFormat);
         LocalDateTime endDate = LocalDateTime.parse(endTime,dateTimeFormat);
+        if(startDate.isAfter(endDate)) {
+            return ResponseEntity.badRequest().build();
+        }
         return ResponseEntity.ok(voteRepository.findByVoteTimeBetween(startDate,endDate));
+    }
+
+    //On class demo 1
+    @GetMapping("/rs/voteRecord")
+    public ResponseEntity<VoteEntity> checkVoteRecordByVoteIdAndUserId(@RequestParam String voteId,
+                                                                       @RequestParam String userId) {
+        if(!voteRepository.existsById(Integer.valueOf(voteId)) ||
+            !userRepository.existsById(Integer.valueOf(userId))) {
+            return ResponseEntity.badRequest().build();
+        }
+        VoteEntity chosenVote = voteRepository.findByIdAndUserId(Integer.valueOf(voteId),userId);
+        return ResponseEntity.ok(chosenVote);
     }
 }

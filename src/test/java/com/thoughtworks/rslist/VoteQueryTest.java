@@ -7,6 +7,7 @@ import com.thoughtworks.rslist.Repository.VoteRepository;
 import com.thoughtworks.rslist.domain.HotEvents;
 import com.thoughtworks.rslist.domain.User;
 import com.thoughtworks.rslist.domain.Vote;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,44 +41,86 @@ public class VoteQueryTest {
     @Autowired
     private VoteRepository voteRepository;
 
-    @BeforeEach
-    public void setUp() {
-        userRepository.deleteAll();
-        eventRepository.deleteAll();
-        voteRepository.deleteAll();
-    }
+    private User user;
+    private HotEvents event;
+    private Vote vote;
+    private String userId;
+    private String eventId;
+    private String voteId;
 
-    @Test
-    void shouldQueryVoteRecordBetweenTime() throws Exception {
-        User user1 = new User("Mark",24,"Male","mark@gmail.com","18888888888",10);
-        String userInfo1 = objectMapper.writeValueAsString(user1);
-        String userId = mockMvc.perform(post("/addUser")
-                .content(userInfo1)
+    @BeforeEach
+    public void setUp() throws Exception {
+        user = User.builder()
+                .userName("Mark")
+                .age(24)
+                .gender("Male")
+                .email("mark@gmail.com")
+                .phone("18888888888")
+                .vote(10).build();
+        String userInfo = objectMapper.writeValueAsString(user);
+        userId = mockMvc.perform(post("/addUser")
+                .content(userInfo)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
 
-        HotEvents event = new HotEvents("一个热搜事件","无分类",userId,10);
+        event = HotEvents.builder().eventName("一个热搜事件").keyWord("无分类")
+                .userId(userId).voteNum(10).build();
         String eventInfo = objectMapper.writeValueAsString(event);
-        String eventId = mockMvc.perform(post("/rs/addEvent")
+        eventId = mockMvc.perform(post("/rs/addEvent")
                 .content(eventInfo).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
 
         LocalDateTime voteTime =
                 LocalDateTime.of(2019, Month.MARCH,21,12,5,12);
-        Vote userVote = new Vote(5, voteTime,userId);
+        vote = Vote.builder().voteNum(5).voteTime(voteTime).userId(userId).build();
+        String userVoteInfo = objectMapper.writeValueAsString(vote);
 
-        String userVoteInfo = objectMapper.writeValueAsString(userVote);
-
-        mockMvc.perform(post("/rs/vote/"+eventId)
+        voteId = mockMvc.perform(post("/rs/vote/"+eventId)
                 .content(userVoteInfo).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
 
+    }
+
+    @AfterEach
+    public void tearDown() {
+        userRepository.deleteAll();
+        eventRepository.deleteAll();
+        voteRepository.deleteAll();
+    }
+
+    @Test
+    void shouldQueryVoteRecordsBetweenTime() throws Exception {
         mockMvc.perform(get("/rs/vote?startTime=2018-03-10 10:00:00&endTime=2020-01-01 10:00:00"))
                 .andExpect(jsonPath("$[0].voteNum",is(5)))
                 .andExpect(jsonPath("$[0]",hasKey("voteTime")))
                 .andExpect(jsonPath("$[0].userId",is(userId)))
                 .andExpect(status().isOk());
+
+        mockMvc.perform(get("/rs/vote?startTime=2020-01-01 10:00:00&endTime=2018-03-10 10:00:00"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldFindVoteRecordByVoteIdAndUserId() throws Exception {
+        mockMvc.perform(get("/rs/voteRecord")
+                .param("voteId",voteId)
+                .param("userId",userId))
+                .andExpect(jsonPath("$.voteNum",is(5)))
+                .andExpect(jsonPath("$",hasKey("voteTime")))
+                .andExpect(jsonPath("$.userId",is(userId)))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/rs/voteRecord")
+                .param("voteId","45")
+                .param("userId",userId))
+                .andExpect(status().isBadRequest());
+
+        mockMvc.perform(get("/rs/voteRecord")
+                .param("voteId",voteId)
+                .param("userId","67"))
+                .andExpect(status().isBadRequest());
     }
 }
