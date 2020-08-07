@@ -4,7 +4,6 @@ import com.thoughtworks.rslist.Entity.UserEntity;
 import com.thoughtworks.rslist.Repository.UserRepository;
 import com.thoughtworks.rslist.domain.User;
 import com.thoughtworks.rslist.exception.CommonError;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 

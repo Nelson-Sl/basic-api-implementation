@@ -300,4 +300,27 @@ public class DatabaseConnectionTest {
                 .andExpect(jsonPath("$[2]",not(hasKey("userId"))))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    void shouldAlterEventInfoIfEventExists() throws Exception {
+        User user = new User("Mark",24,"Male","mark@gmail.com","18888888888",10);
+        String userInfo = objectMapper.writeValueAsString(user);
+        String userId = mockMvc.perform(post("/addUser")
+                .content(userInfo)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        HotEvents event = new HotEvents("一个热搜事件","无分类",userId,10);
+        String eventInfo = objectMapper.writeValueAsString(event);
+        String eventId = mockMvc.perform(post("/rs/addEvent")
+                .content(eventInfo).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+
+        mockMvc.perform(post("/rs/alterEvent?indexStr="+ eventId +"&eventName=特朗普辞职&keyWord=时事"))
+                .andExpect(status().isOk());
+        EventEntity changedEvent = eventRepository.findById(Integer.valueOf(eventId)).get();
+        assertEquals("特朗普辞职", changedEvent.getEventName());
+        assertEquals("时事", changedEvent.getKeyWord());
+    }
 }

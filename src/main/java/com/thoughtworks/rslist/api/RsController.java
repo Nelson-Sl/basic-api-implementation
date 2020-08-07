@@ -97,13 +97,18 @@ public class RsController {
     public ResponseEntity alterHotEvent(@RequestParam String indexStr,
                               @RequestParam(required = false) String eventName,
                               @RequestParam(required = false) String keyWord) {
-        int index = Integer.parseInt(indexStr);
+        int eventId = Integer.valueOf(indexStr);
+        if(!eventRepository.existsById(eventId)) {
+            return ResponseEntity.status(HttpStatus.OK).build();
+        }
+        EventEntity changingEvent = eventRepository.findById(eventId).get();
         if(eventName != null) {
-            rsList.get(index - 1).setEventName(eventName);
+            changingEvent.setEventName(eventName);
         }
         if(keyWord != null) {
-            rsList.get(index - 1).setKeyWord(keyWord);
+            changingEvent.setKeyWord(keyWord);
         }
+        eventRepository.save(changingEvent);
         return ResponseEntity.ok().build();
     }
 
@@ -134,7 +139,9 @@ public class RsController {
     @PostMapping("/rs/vote/{rsEventId}")
     @Transactional
     public ResponseEntity checkVoteStatusForUser (@PathVariable int rsEventId, @RequestBody Vote vote) {
-        if(eventIdNotExist(rsEventId) || userIdNotExist(vote) || !isValidForVote(vote)) {
+        Optional<EventEntity> voteEvent = eventRepository.findById(rsEventId);
+        Optional<UserEntity> voteUser = userRepository.findById(Integer.valueOf(vote.getUserId()));
+        if(!voteEvent.isPresent() || !voteUser.isPresent() || !isValidForVote(vote)) {
             return ResponseEntity.badRequest().build();
         }
         VoteEntity voteRecord = VoteEntity.builder()
@@ -143,29 +150,13 @@ public class RsController {
                 .userId(vote.getUserId()).build();
         voteRepository.save(voteRecord);
 
-        EventEntity voteEvent = eventRepository.findById(rsEventId).get();
-        voteEvent.setVoteNum(voteEvent.getVoteNum() + vote.getVoteNum());
-        eventRepository.save(voteEvent);
+        voteEvent.get().setVoteNum(voteEvent.get().getVoteNum() + vote.getVoteNum());
+        eventRepository.save(voteEvent.get());
 
-        UserEntity voteUser = userRepository.findById(Integer.valueOf(vote.getUserId())).get();
-        voteUser.setVote(voteUser.getVote() - vote.getVoteNum());
-        userRepository.save(voteUser);
+        voteUser.get().setVote(voteUser.get().getVote() - vote.getVoteNum());
+        userRepository.save(voteUser.get());
 
         return ResponseEntity.created(null).build();
-    }
-
-    private boolean userIdNotExist(Vote vote) {
-        if(userRepository.existsById(Integer.valueOf(vote.getUserId()))) {
-            return false;
-        }
-        return true;
-    }
-
-    private boolean eventIdNotExist(int rsEventId) {
-        if(eventRepository.existsById(rsEventId)) {
-            return false;
-        }
-        return true;
     }
 
     private boolean isValidForVote(Vote vote) {
