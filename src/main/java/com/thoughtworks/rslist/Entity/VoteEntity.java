@@ -19,7 +19,7 @@ public class VoteEntity {
     @GeneratedValue
     private Integer id;
     private Integer voteNum;
-    private String voteTime;
+    private LocalDateTime voteTime;
     private String userId;
 
     @ManyToOne

@@ -17,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -187,8 +188,7 @@ public class DatabaseConnectionTest {
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
 
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Vote userVote = new Vote(5, df.format(System.currentTimeMillis()),userId);
+        Vote userVote = new Vote(5, LocalDateTime.now(),userId);
 
         String userVoteInfo = objectMapper.writeValueAsString(userVote);
 
@@ -201,19 +201,19 @@ public class DatabaseConnectionTest {
         assertEquals(15,eventRepository.findById(Integer.valueOf(eventId)).get().getVoteNum());
         assertEquals(5, userRepository.findById(Integer.valueOf(userId)).get().getVote());
 
-        Vote anotherUserVote = new Vote(11, df.format(System.currentTimeMillis()),userId);
+        Vote anotherUserVote = new Vote(11, LocalDateTime.now(),userId);
         String anotherUserVoteInfo = objectMapper.writeValueAsString(anotherUserVote);
         mockMvc.perform(post("/rs/vote/"+eventId)
                 .content(anotherUserVoteInfo).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
 
-        Vote voteWithNotExitUserId = new Vote(5, df.format(System.currentTimeMillis()),"33");
+        Vote voteWithNotExitUserId = new Vote(5, LocalDateTime.now(),"33");
         String voteInfoWithNotExitUserId = objectMapper.writeValueAsString(voteWithNotExitUserId);
         mockMvc.perform(post("/rs/vote/"+eventId)
                 .content(voteInfoWithNotExitUserId).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
 
-        Vote voteWithNotExistRsEventId = new Vote(5, df.format(System.currentTimeMillis()),userId);
+        Vote voteWithNotExistRsEventId = new Vote(5, LocalDateTime.now(),userId);
         String voteInfoWithNotExistRsEventId = objectMapper.writeValueAsString(voteWithNotExistRsEventId);
         mockMvc.perform(post("/rs/vote/"+33)
                 .content(voteInfoWithNotExistRsEventId).contentType(MediaType.APPLICATION_JSON))
