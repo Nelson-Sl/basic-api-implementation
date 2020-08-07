@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.thoughtworks.rslist.domain.HotEvents;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -31,6 +33,7 @@ public class RsController {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final VoteRepository voteRepository;
+    private final DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public RsController(EventRepository eventRepository, UserRepository userRepository,
         VoteRepository voteRepository) {
@@ -161,5 +164,13 @@ public class RsController {
             return true;
         }
         return false;
+    }
+
+    @GetMapping("/rs/vote")
+    public ResponseEntity<List<VoteEntity>> checkVoteRecordWithinTime(
+            @RequestParam String startTime, @RequestParam String endTime) {
+        LocalDateTime startDate = LocalDateTime.parse(startTime,dateTimeFormat);
+        LocalDateTime endDate = LocalDateTime.parse(endTime,dateTimeFormat);
+        return ResponseEntity.ok(voteRepository.findByVoteTimeBetween(startDate,endDate));
     }
 }

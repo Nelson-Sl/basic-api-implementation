@@ -46,6 +46,7 @@ public class DatabaseConnectionTest {
     public void setUp() {
         userRepository.deleteAll();
         eventRepository.deleteAll();
+        voteRepository.deleteAll();
     }
 
     @Test
