@@ -6,11 +6,9 @@ import com.thoughtworks.rslist.Entity.VoteEntity;
 import com.thoughtworks.rslist.Repository.EventRepository;
 import com.thoughtworks.rslist.Repository.UserRepository;
 import com.thoughtworks.rslist.Repository.VoteRepository;
-import com.thoughtworks.rslist.domain.User;
 import com.thoughtworks.rslist.domain.Vote;
 import com.thoughtworks.rslist.exception.InvalidIndexInputException;
 import com.thoughtworks.rslist.exception.InvalidRequestParamException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -114,8 +112,12 @@ public class RsController {
 
     @PostMapping("/rs/deleteEvent")
     public ResponseEntity deleteHotEvent(@RequestParam String indexStr) {
-        int index = Integer.parseInt(indexStr);
-        return ResponseEntity.ok(rsList.remove(index-1));
+        int eventId = Integer.valueOf(indexStr);
+        if(!eventRepository.existsById(eventId)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+        eventRepository.deleteById(eventId);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @PatchMapping("/rs/{rsEventId}")

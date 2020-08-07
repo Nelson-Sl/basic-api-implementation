@@ -322,5 +322,32 @@ public class DatabaseConnectionTest {
         EventEntity changedEvent = eventRepository.findById(Integer.valueOf(eventId)).get();
         assertEquals("特朗普辞职", changedEvent.getEventName());
         assertEquals("时事", changedEvent.getKeyWord());
+
+        mockMvc.perform(post("/rs/alterEvent?indexStr=33&eventName=乘风破浪的姐姐&keyWord=娱乐"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void shouldDeleteEventBasedOnIdOffered() throws Exception {
+        User user = new User("Mark",24,"Male","mark@gmail.com","18888888888",10);
+        String userInfo = objectMapper.writeValueAsString(user);
+        String userId = mockMvc.perform(post("/addUser")
+                .content(userInfo)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        HotEvents event = new HotEvents("一个热搜事件","无分类",userId,10);
+        String eventInfo = objectMapper.writeValueAsString(event);
+        String eventId = mockMvc.perform(post("/rs/addEvent")
+                .content(eventInfo).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+
+        mockMvc.perform(post("/rs/deleteEvent?indexStr="+eventId))
+                .andExpect(status().isOk());
+        assertEquals(0, eventRepository.count());
+
+        mockMvc.perform(post("/rs/deleteEvent?indexStr=33"))
+                .andExpect(status().isBadRequest());
     }
 }
