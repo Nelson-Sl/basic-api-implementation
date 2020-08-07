@@ -18,6 +18,7 @@ public class HotEvents {
    // @Valid
     // private User user;
     private String userId;
+    private int voteNum;
 
    // @JsonIgnore
    // public User getUser() { return user; }

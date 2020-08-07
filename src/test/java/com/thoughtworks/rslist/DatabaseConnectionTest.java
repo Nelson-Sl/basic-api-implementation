@@ -28,8 +28,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import static org.hamcrest.Matchers.hasKey;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -109,7 +111,7 @@ public class DatabaseConnectionTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
-        HotEvents event = new HotEvents("一个热搜事件","无分类",userId);
+        HotEvents event = new HotEvents("一个热搜事件","无分类",userId,10);
         String eventInfo = objectMapper.writeValueAsString(event);
         mockMvc.perform(post("/rs/addEvent")
                         .content(eventInfo).contentType(MediaType.APPLICATION_JSON))
@@ -126,7 +128,7 @@ public class DatabaseConnectionTest {
                 .content(userInfo)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
-        HotEvents event = new HotEvents("一个热搜事件","无分类","33");
+        HotEvents event = new HotEvents("一个热搜事件","无分类","33",10);
         String eventInfo = objectMapper.writeValueAsString(event);
         mockMvc.perform(post("/rs/addEvent")
                 .content(eventInfo).contentType(MediaType.APPLICATION_JSON))
@@ -142,7 +144,7 @@ public class DatabaseConnectionTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
-        HotEvents event = new HotEvents("一个热搜事件","无分类",userId);
+        HotEvents event = new HotEvents("一个热搜事件","无分类",userId,10);
         String eventInfo = objectMapper.writeValueAsString(event);
         mockMvc.perform(post("/rs/addEvent")
                 .content(eventInfo).contentType(MediaType.APPLICATION_JSON))
@@ -162,7 +164,7 @@ public class DatabaseConnectionTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
-        HotEvents event = new HotEvents("一个热搜事件","无分类",userId);
+        HotEvents event = new HotEvents("一个热搜事件","无分类",userId,10);
         String eventInfo = objectMapper.writeValueAsString(event);
         String eventId = mockMvc.perform(post("/rs/addEvent")
                 .content(eventInfo).contentType(MediaType.APPLICATION_JSON))
@@ -185,7 +187,7 @@ public class DatabaseConnectionTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
-        HotEvents event = new HotEvents("一个热搜事件","无分类",userId);
+        HotEvents event = new HotEvents("一个热搜事件","无分类",userId,10);
         String eventInfo = objectMapper.writeValueAsString(event);
         String eventId = mockMvc.perform(post("/rs/addEvent")
                 .content(eventInfo).contentType(MediaType.APPLICATION_JSON))
@@ -206,5 +208,29 @@ public class DatabaseConnectionTest {
         mockMvc.perform(post("/rs/vote/"+eventId)
                 .content(anotherUserVoteInfo).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void getSpecialEventsFromDatabase() throws Exception {
+        User user1 = new User("Mark",24,"Male","mark@gmail.com","18888888888",10);
+        String userInfo1 = objectMapper.writeValueAsString(user1);
+        String userId = mockMvc.perform(post("/addUser")
+                .content(userInfo1)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        HotEvents event = new HotEvents("一个热搜事件","无分类",userId,10);
+        String eventInfo = objectMapper.writeValueAsString(event);
+        String eventId = mockMvc.perform(post("/rs/addEvent")
+                .content(eventInfo).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        mockMvc.perform(get("/rs/list/" + eventId))
+                .andExpect(jsonPath("$.eventName",is("一个热搜事件")))
+                .andExpect(jsonPath("$.keyWord",is("无分类")))
+                .andExpect(jsonPath("$.id",is(Integer.valueOf(eventId))))
+                .andExpect(jsonPath("$.voteNum",is(10)))
+                .andExpect(jsonPath("$",not(hasKey("userId"))))
+                .andExpect(status().isOk());
     }
 }

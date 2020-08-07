@@ -27,12 +27,12 @@ import java.util.stream.Stream;
 public class RsController {
     private List<HotEvents> rsList = Stream.of(
             new HotEvents("第一条事件","无分类",
-                    "1"),
+                    "1",10),
             new HotEvents("第二条事件","无分类",
-                    "2"),
+                    "2",10),
             new HotEvents("第三条事件","无分类",
-                    "3"))
-            .collect(Collectors.toList());;
+                    "3",10))
+            .collect(Collectors.toList());
 
             private final EventRepository eventRepository;
             private final UserRepository userRepository;
@@ -51,8 +51,11 @@ public class RsController {
         if(index > rsList.size()) {
             throw new InvalidIndexInputException("invalid index");
         }
-        return ResponseEntity.ok(rsList.get(index-1));
+        EventEntity event = eventRepository.findById(index).get();
+        return ResponseEntity.ok(event);
     }
+
+
 
     @GetMapping("/rs/list")
     public ResponseEntity getSpecialRange(@RequestParam(required = false) Integer start,
@@ -80,6 +83,7 @@ public class RsController {
                 .eventName(newEvent.getEventName())
                 .keyWord(newEvent.getKeyWord())
                 .userId(newEvent.getUserId())
+                .voteNum(newEvent.getVoteNum())
                 .build();
         EventEntity eventDataSaved = eventRepository.save(eventData);
         return ResponseEntity.status(HttpStatus.CREATED).body(String.valueOf(eventDataSaved.getId()));
