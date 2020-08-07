@@ -10,8 +10,10 @@ import com.thoughtworks.rslist.domain.User;
 import com.thoughtworks.rslist.domain.Vote;
 import com.thoughtworks.rslist.exception.InvalidIndexInputException;
 import com.thoughtworks.rslist.exception.InvalidRequestParamException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,9 +36,10 @@ public class RsController {
                     "3",10))
             .collect(Collectors.toList());
 
-            private final EventRepository eventRepository;
-            private final UserRepository userRepository;
-            private final VoteRepository voteRepository;
+    //final使用构造器注入IoC容器
+    private final EventRepository eventRepository;
+    private final UserRepository userRepository;
+    private final VoteRepository voteRepository;
 
     public RsController(EventRepository eventRepository, UserRepository userRepository,
         VoteRepository voteRepository) {
@@ -44,6 +47,7 @@ public class RsController {
         this.userRepository = userRepository;
         this.voteRepository = voteRepository;
     }
+
 
 
     @GetMapping("/rs/list/{index}")
@@ -61,12 +65,12 @@ public class RsController {
     public ResponseEntity getSpecialRange(@RequestParam(required = false) Integer start,
                                   @RequestParam(required = false) Integer end) throws InvalidRequestParamException {
         if(start == null || end == null) {
-            return ResponseEntity.ok(rsList);
+            return ResponseEntity.ok(eventRepository.findAll());
         }
         if(isInvalid(start,end)) {
             throw new InvalidRequestParamException("invalid request param");
         }
-        return ResponseEntity.ok(rsList.subList(start-1,end));
+        return ResponseEntity.ok(eventRepository.findAll().subList(start,end));
     }
 
     private boolean isInvalid(Integer start, Integer end) {
@@ -128,8 +132,9 @@ public class RsController {
     }
 
     @PostMapping("/rs/vote/{rsEventId}")
+    @Transactional
     public ResponseEntity checkVoteStatusForUser (@PathVariable int rsEventId, @RequestBody Vote vote) {
-        if(!isValidForVote(vote)) {
+        if(eventIdNotExist(rsEventId) || userIdNotExist(vote) || !isValidForVote(vote)) {
             return ResponseEntity.badRequest().build();
         }
         VoteEntity voteRecord = VoteEntity.builder()
@@ -137,7 +142,30 @@ public class RsController {
                 .voteTime(vote.getVoteTime())
                 .userId(vote.getUserId()).build();
         voteRepository.save(voteRecord);
+
+        EventEntity voteEvent = eventRepository.findById(rsEventId).get();
+        voteEvent.setVoteNum(voteEvent.getVoteNum() + vote.getVoteNum());
+        eventRepository.save(voteEvent);
+
+        UserEntity voteUser = userRepository.findById(Integer.valueOf(vote.getUserId())).get();
+        voteUser.setVote(voteUser.getVote() - vote.getVoteNum());
+        userRepository.save(voteUser);
+
         return ResponseEntity.created(null).build();
+    }
+
+    private boolean userIdNotExist(Vote vote) {
+        if(userRepository.existsById(Integer.valueOf(vote.getUserId()))) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean eventIdNotExist(int rsEventId) {
+        if(eventRepository.existsById(rsEventId)) {
+            return false;
+        }
+        return true;
     }
 
     private boolean isValidForVote(Vote vote) {
