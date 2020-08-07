@@ -21,6 +21,7 @@ public class VoteEntity {
     private Integer voteNum;
     private LocalDateTime voteTime;
     private String userId;
+    private String eventId;
 
     @ManyToOne
     private UserEntity userEntity;

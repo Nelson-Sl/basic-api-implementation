@@ -20,8 +20,7 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
 
-import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -74,7 +73,7 @@ public class VoteQueryTest {
 
         LocalDateTime voteTime =
                 LocalDateTime.of(2019, Month.MARCH,21,12,5,12);
-        vote = Vote.builder().voteNum(5).voteTime(voteTime).userId(userId).build();
+        vote = Vote.builder().voteNum(1).voteTime(voteTime).userId(userId).eventId(eventId).build();
         String userVoteInfo = objectMapper.writeValueAsString(vote);
 
         voteId = mockMvc.perform(post("/rs/vote/"+eventId)
@@ -94,7 +93,8 @@ public class VoteQueryTest {
     @Test
     void shouldQueryVoteRecordsBetweenTime() throws Exception {
         mockMvc.perform(get("/rs/vote?startTime=2018-03-10 10:00:00&endTime=2020-01-01 10:00:00"))
-                .andExpect(jsonPath("$[0].voteNum",is(5)))
+                .andExpect(jsonPath("$",hasSize(1)))
+                .andExpect(jsonPath("$[0].voteNum",is(1)))
                 .andExpect(jsonPath("$[0]",hasKey("voteTime")))
                 .andExpect(jsonPath("$[0].userId",is(userId)))
                 .andExpect(status().isOk());
@@ -104,23 +104,62 @@ public class VoteQueryTest {
     }
 
     @Test
-    void shouldFindVoteRecordByVoteIdAndUserId() throws Exception {
+    void shouldFindVoteRecordByUserIdAndEventId() throws Exception {
         mockMvc.perform(get("/rs/voteRecord")
-                .param("voteId",voteId)
-                .param("userId",userId))
-                .andExpect(jsonPath("$.voteNum",is(5)))
-                .andExpect(jsonPath("$",hasKey("voteTime")))
-                .andExpect(jsonPath("$.userId",is(userId)))
+                .param("userId",userId)
+                .param("eventId",eventId))
+                .andExpect(jsonPath("$",hasSize(1)))
+                .andExpect(jsonPath("$[0].voteNum",is(1)))
+                .andExpect(jsonPath("$[0]",hasKey("voteTime")))
+                .andExpect(jsonPath("$[0].userId",is(userId)))
+                .andExpect(jsonPath("$[0].eventId",is(eventId)))
                 .andExpect(status().isOk());
 
         mockMvc.perform(get("/rs/voteRecord")
-                .param("voteId","45")
-                .param("userId",userId))
+                .param("userId","45")
+                .param("eventId",eventId))
                 .andExpect(status().isBadRequest());
 
         mockMvc.perform(get("/rs/voteRecord")
-                .param("voteId",voteId)
-                .param("userId","67"))
+                .param("userId",eventId)
+                .param("eventId","67"))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldShowPageRecordInMultiplePages() throws Exception {
+        for(int i = 0; i < 7; i++) {
+            LocalDateTime voteTime =
+                    LocalDateTime.of(2019, Month.MARCH,21,12,5,12);
+            vote = Vote.builder().voteNum(1).voteTime(voteTime).userId(userId).eventId(eventId).build();
+            String userVoteInfo = objectMapper.writeValueAsString(vote);
+
+            mockMvc.perform(post("/rs/vote/"+eventId)
+                    .content(userVoteInfo).contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isCreated())
+                    .andReturn().getResponse().getContentAsString();
+        }
+
+        mockMvc.perform(get("/rs/voteRecord")
+                .param("userId",userId)
+                .param("eventId",eventId)
+                .param("pageIndex","1"))
+                .andExpect(jsonPath("$",hasSize(5)))
+                .andExpect(jsonPath("$[0].voteNum",is(1)))
+                .andExpect(jsonPath("$[1].voteNum",is(1)))
+                .andExpect(jsonPath("$[2].voteNum",is(1)))
+                .andExpect(jsonPath("$[3].voteNum",is(1)))
+                .andExpect(jsonPath("$[4].voteNum",is(1)))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/rs/voteRecord")
+                .param("userId",userId)
+                .param("eventId",eventId)
+                .param("pageIndex","2"))
+                .andExpect(jsonPath("$",hasSize(3)))
+                .andExpect(jsonPath("$[0].voteNum",is(1)))
+                .andExpect(jsonPath("$[1].voteNum",is(1)))
+                .andExpect(jsonPath("$[2].voteNum",is(1)))
+                .andExpect(status().isOk());
     }
 }

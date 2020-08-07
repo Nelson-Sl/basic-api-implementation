@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.ManyToOne;
 import java.time.LocalDateTime;
 
 @Data
@@ -19,4 +20,5 @@ public class Vote {
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     private LocalDateTime voteTime;
     private String userId;
+    private String eventId;
 }

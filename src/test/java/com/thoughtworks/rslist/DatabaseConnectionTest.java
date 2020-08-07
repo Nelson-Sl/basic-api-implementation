@@ -189,7 +189,7 @@ public class DatabaseConnectionTest {
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
 
-        Vote userVote = new Vote(5, LocalDateTime.now(),userId);
+        Vote userVote = new Vote(5, LocalDateTime.now(),userId,eventId);
 
         String userVoteInfo = objectMapper.writeValueAsString(userVote);
 
@@ -202,19 +202,19 @@ public class DatabaseConnectionTest {
         assertEquals(15,eventRepository.findById(Integer.valueOf(eventId)).get().getVoteNum());
         assertEquals(5, userRepository.findById(Integer.valueOf(userId)).get().getVote());
 
-        Vote anotherUserVote = new Vote(11, LocalDateTime.now(),userId);
+        Vote anotherUserVote = new Vote(11, LocalDateTime.now(),userId,eventId);
         String anotherUserVoteInfo = objectMapper.writeValueAsString(anotherUserVote);
         mockMvc.perform(post("/rs/vote/"+eventId)
                 .content(anotherUserVoteInfo).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
 
-        Vote voteWithNotExitUserId = new Vote(5, LocalDateTime.now(),"33");
+        Vote voteWithNotExitUserId = new Vote(5, LocalDateTime.now(),"33",eventId);
         String voteInfoWithNotExitUserId = objectMapper.writeValueAsString(voteWithNotExitUserId);
         mockMvc.perform(post("/rs/vote/"+eventId)
                 .content(voteInfoWithNotExitUserId).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
 
-        Vote voteWithNotExistRsEventId = new Vote(5, LocalDateTime.now(),userId);
+        Vote voteWithNotExistRsEventId = new Vote(5, LocalDateTime.now(),userId,eventId);
         String voteInfoWithNotExistRsEventId = objectMapper.writeValueAsString(voteWithNotExistRsEventId);
         mockMvc.perform(post("/rs/vote/"+33)
                 .content(voteInfoWithNotExistRsEventId).contentType(MediaType.APPLICATION_JSON))

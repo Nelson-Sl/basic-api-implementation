@@ -9,6 +9,8 @@ import com.thoughtworks.rslist.Repository.VoteRepository;
 import com.thoughtworks.rslist.domain.Vote;
 import com.thoughtworks.rslist.exception.InvalidIndexInputException;
 import com.thoughtworks.rslist.exception.InvalidRequestParamException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -145,7 +147,9 @@ public class RsController {
         VoteEntity voteRecord = VoteEntity.builder()
                 .voteNum(vote.getVoteNum())
                 .voteTime(vote.getVoteTime())
-                .userId(vote.getUserId()).build();
+                .userId(vote.getUserId())
+                .eventId(vote.getEventId())
+                .build();
         VoteEntity newVote = voteRepository.save(voteRecord);
 
         voteEvent.get().setVoteNum(voteEvent.get().getVoteNum() + vote.getVoteNum());
@@ -174,18 +178,25 @@ public class RsController {
         if(startDate.isAfter(endDate)) {
             return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.ok(voteRepository.findByVoteTimeBetween(startDate,endDate));
+        return ResponseEntity.ok(voteRepository.findAllByVoteTimeBetween(startDate,endDate));
     }
 
     //On class demo 1
     @GetMapping("/rs/voteRecord")
-    public ResponseEntity<VoteEntity> checkVoteRecordByVoteIdAndUserId(@RequestParam String voteId,
-                                                                       @RequestParam String userId) {
-        if(!voteRepository.existsById(Integer.valueOf(voteId)) ||
-            !userRepository.existsById(Integer.valueOf(userId))) {
+    public ResponseEntity<List<VoteEntity>> checkVoteRecordByVoteIdAndUserId(@RequestParam String userId,
+                                                           @RequestParam String eventId,
+                                                         @RequestParam(required = false) String pageIndex) {
+        if(!userRepository.existsById(Integer.valueOf(userId)) ||
+            !eventRepository.existsById(Integer.valueOf(eventId))) {
             return ResponseEntity.badRequest().build();
         }
-        VoteEntity chosenVote = voteRepository.findByIdAndUserId(Integer.valueOf(voteId),userId);
+        List<VoteEntity> chosenVote;
+        if(pageIndex == null) {
+            chosenVote = voteRepository.findAllByUserIdAndEventId(userId, eventId);
+        }else{
+            Pageable pageable = PageRequest.of(Integer.valueOf(pageIndex)-1,5);
+            chosenVote = voteRepository.findAllByUserIdAndEventId(userId,eventId,pageable);
+        }
         return ResponseEntity.ok(chosenVote);
     }
 }
