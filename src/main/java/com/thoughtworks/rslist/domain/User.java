@@ -15,6 +15,8 @@ Basic Input Example
 }
  */
 
+import com.thoughtworks.rslist.Entity.EventEntity;
+import com.thoughtworks.rslist.Entity.UserEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -44,4 +46,15 @@ public class User {
     @Pattern(regexp = "1\\d{10}")
     private String phone;
     private Integer vote;
+
+    public static UserEntity userEntityBuilder(User user) {
+        UserEntity result = UserEntity.builder()
+                .userName(user.getUserName())
+                .age(user.getAge())
+                .gender(user.getGender())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .vote(user.getVote()).build();
+        return result;
+    }
 }

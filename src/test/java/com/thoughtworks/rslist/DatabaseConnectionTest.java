@@ -170,6 +170,10 @@ public class DatabaseConnectionTest {
         assertEquals(1, eventRepository.findAll().size());
         assertEquals("另一个热搜事件",eventRepository.findAll().get(0).getEventName());
         assertEquals("时事",eventRepository.findAll().get(0).getKeyWord());
+
+        String anotherPatchUrl = "/rs/33?eventName=再一个热搜事件&keyWord=娱乐";
+        mockMvc.perform(patch(anotherPatchUrl))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -317,7 +321,7 @@ public class DatabaseConnectionTest {
         assertEquals("时事", changedEvent.getKeyWord());
 
         mockMvc.perform(post("/rs/alterEvent?indexStr=33&eventName=乘风破浪的姐姐&keyWord=娱乐"))
-                .andExpect(status().isOk());
+                .andExpect(status().isBadRequest());
     }
 
     @Test

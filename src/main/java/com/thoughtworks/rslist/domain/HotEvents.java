@@ -2,6 +2,7 @@ package com.thoughtworks.rslist.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.thoughtworks.rslist.Entity.EventEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,5 +28,14 @@ public class HotEvents {
 
   // @JsonProperty
   //  public void setUser(User user) { this.user = user; }
+
+    public static EventEntity eventEntityBuilder(HotEvents event) {
+        EventEntity result = EventEntity.builder()
+                .eventName(event.getEventName())
+                .keyWord(event.getKeyWord())
+                .userId(event.userId)
+                .voteNum(event.getVoteNum()).build();
+        return result;
+    }
 }
     
