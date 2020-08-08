@@ -2,15 +2,18 @@ package com.thoughtworks.rslist.Service;
 
 import com.thoughtworks.rslist.Entity.EventEntity;
 import com.thoughtworks.rslist.Repository.EventRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 
-// @Service
+@Service
 public class RsService {
-    @Autowired
-    private EventRepository eventRepository;
+    private final EventRepository eventRepository;
+
+    public RsService(EventRepository eventRepository) {
+        this.eventRepository = eventRepository;
+    }
 
     public int getEventCount() {
         return (int) eventRepository.count();

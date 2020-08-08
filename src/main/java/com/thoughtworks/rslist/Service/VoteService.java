@@ -2,17 +2,20 @@ package com.thoughtworks.rslist.Service;
 
 import com.thoughtworks.rslist.Entity.VoteEntity;
 import com.thoughtworks.rslist.Repository.VoteRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-// @Service
+@Service
 public class VoteService {
-    @Autowired
     private VoteRepository voteRepository;
+
+    public VoteService(VoteRepository voteRepository) {
+        this.voteRepository = voteRepository;
+    }
 
     public VoteEntity addOrChangeVoteRecord(VoteEntity newVote) {
         return voteRepository.save(newVote);
