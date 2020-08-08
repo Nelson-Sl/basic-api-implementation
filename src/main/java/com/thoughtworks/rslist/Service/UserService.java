@@ -2,15 +2,13 @@ package com.thoughtworks.rslist.Service;
 
 import com.thoughtworks.rslist.Entity.UserEntity;
 import com.thoughtworks.rslist.Repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Service
+//@Service
 public class UserService {
-    private final UserRepository userRepository;
-
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    @Autowired
+    private UserRepository userRepository;
 
     public boolean isUserExists(int userId) {
         return userRepository.existsById(userId);
