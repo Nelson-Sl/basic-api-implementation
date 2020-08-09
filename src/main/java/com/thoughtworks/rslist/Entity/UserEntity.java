@@ -1,5 +1,6 @@
 package com.thoughtworks.rslist.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,9 +27,11 @@ public class UserEntity {
     private String phone;
     private Integer vote;
 
-    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "userId")
+    @JsonIgnore
+    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "user")
     private List<EventEntity> eventEntityList;
 
-    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "userId")
+    @JsonIgnore
+    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "user")
     private List<VoteEntity> voteEntityList;
 }

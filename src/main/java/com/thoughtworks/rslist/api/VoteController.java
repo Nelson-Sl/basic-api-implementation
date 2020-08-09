@@ -41,6 +41,8 @@ public class VoteController {
             return ResponseEntity.badRequest().build();
         }
         VoteEntity voteRecord = Vote.voteEntityBuilder(vote);
+        voteRecord.setUser(userService.getUserInfoById(voteUserId));
+        voteRecord.setEvent(rsService.getEventById(rsEventId));
         VoteEntity newVote = voteService.addOrChangeVoteRecord(voteRecord);
 
         EventEntity voteEvent = rsService.getEventById(rsEventId);

@@ -1,5 +1,6 @@
 package com.thoughtworks.rslist.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,9 +21,14 @@ public class VoteEntity {
     private Integer id;
     private Integer voteNum;
     private LocalDateTime voteTime;
-    private String userId;
-    private String eventId;
+    // private String userId;
+    // private String eventId;
 
+    @JsonIgnore
     @ManyToOne
-    private UserEntity userEntity;
+    private UserEntity user;
+
+    @JsonIgnore
+    @ManyToOne
+    private EventEntity event;
 }

@@ -2,6 +2,7 @@ package com.thoughtworks.rslist.Service;
 
 import com.thoughtworks.rslist.Entity.UserEntity;
 import com.thoughtworks.rslist.Repository.UserRepository;
+import com.thoughtworks.rslist.domain.User;
 import org.springframework.stereotype.Service;
 
 @Service

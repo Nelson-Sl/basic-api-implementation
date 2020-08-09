@@ -26,11 +26,12 @@ public class VoteService {
     }
 
     public List<VoteEntity> findVoteRecordsByUserIdAndEventId(String userId, String eventId) {
-        return voteRepository.findAllByUserIdAndEventId(userId, eventId);
+        return voteRepository.findAllByUserIdAndEventId(Integer.valueOf(userId), Integer.valueOf(eventId));
     }
 
     public List<VoteEntity> findVoteRecordsByUserIdAndEventId(String userId, String eventId,
             Pageable pageable) {
-        return voteRepository.findAllByUserIdAndEventId(userId, eventId, pageable);
+        return voteRepository.findAllByUserIdAndEventId(Integer.valueOf(userId),
+                Integer.valueOf(eventId), pageable);
     }
 }

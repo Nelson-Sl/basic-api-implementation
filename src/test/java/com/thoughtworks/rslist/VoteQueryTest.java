@@ -63,7 +63,7 @@ public class VoteQueryTest {
                 .andReturn().getResponse().getContentAsString();
 
         event = HotEvents.builder().eventName("一个热搜事件").keyWord("无分类")
-                .userId(userId).voteNum(10).build();
+                .user(user).userId(Integer.valueOf(userId)).voteNum(10).build();
         String eventInfo = objectMapper.writeValueAsString(event);
         eventId = mockMvc.perform(post("/rs/event")
                 .content(eventInfo).contentType(MediaType.APPLICATION_JSON))
@@ -72,14 +72,12 @@ public class VoteQueryTest {
 
         LocalDateTime voteTime =
                 LocalDateTime.of(2019, Month.MARCH,21,12,5,12);
-        vote = Vote.builder().voteNum(1).voteTime(voteTime).userId(userId).eventId(eventId).build();
+        vote = Vote.builder().voteNum(1).voteTime(voteTime).user(user).userId(userId).eventId(eventId).build();
         String userVoteInfo = objectMapper.writeValueAsString(vote);
-
         voteId = mockMvc.perform(post("/rs/"+ eventId +"/vote")
                 .content(userVoteInfo).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
-
     }
 
     @AfterEach
@@ -91,25 +89,11 @@ public class VoteQueryTest {
 
     @Test
     void getSpecialEventsFromDatabase() throws Exception {
-        User user1 = new User("Mark",24,"Male","mark@gmail.com","18888888888",10);
-        String userInfo1 = objectMapper.writeValueAsString(user1);
-        String userId = mockMvc.perform(post("/user")
-                .content(userInfo1)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated())
-                .andReturn().getResponse().getContentAsString();
-        HotEvents event = new HotEvents("一个热搜事件","无分类",userId,10);
-        String eventInfo = objectMapper.writeValueAsString(event);
-        String eventId = mockMvc.perform(post("/rs/event")
-                .content(eventInfo).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated())
-                .andReturn().getResponse().getContentAsString();
         mockMvc.perform(get("/rs/list/" + eventId))
                 .andExpect(jsonPath("$.eventName",is("一个热搜事件")))
                 .andExpect(jsonPath("$.keyWord",is("无分类")))
                 .andExpect(jsonPath("$.id",is(Integer.valueOf(eventId))))
-                .andExpect(jsonPath("$.voteNum",is(10)))
-                .andExpect(jsonPath("$",not(hasKey("userId"))))
+                .andExpect(jsonPath("$.voteNum",is(11)))
                 .andExpect(status().isOk());
     }
 
@@ -119,7 +103,6 @@ public class VoteQueryTest {
                 .andExpect(jsonPath("$",hasSize(1)))
                 .andExpect(jsonPath("$[0].voteNum",is(1)))
                 .andExpect(jsonPath("$[0]",hasKey("voteTime")))
-                .andExpect(jsonPath("$[0].userId",is(userId)))
                 .andExpect(status().isOk());
 
         mockMvc.perform(get("/rs/vote/searchByTime?startTime=2020-01-01 10:00:00&endTime=2018-03-10 10:00:00"))
@@ -134,8 +117,6 @@ public class VoteQueryTest {
                 .andExpect(jsonPath("$",hasSize(1)))
                 .andExpect(jsonPath("$[0].voteNum",is(1)))
                 .andExpect(jsonPath("$[0]",hasKey("voteTime")))
-                .andExpect(jsonPath("$[0].userId",is(userId)))
-                .andExpect(jsonPath("$[0].eventId",is(eventId)))
                 .andExpect(status().isOk());
 
         mockMvc.perform(get("/rs/vote")

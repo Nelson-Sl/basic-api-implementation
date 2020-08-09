@@ -21,6 +21,7 @@ public class Vote {
     private int voteNum;
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     private LocalDateTime voteTime;
+    private User user;
     private String userId;
     private String eventId;
 
@@ -28,8 +29,8 @@ public class Vote {
         VoteEntity result = VoteEntity.builder()
                 .voteNum(vote.getVoteNum())
                 .voteTime(vote.getVoteTime())
-                .userId(vote.getUserId())
-                .eventId(vote.getEventId()).build();
+                .user(null)
+                .event(null).build();
         return result;
     }
 }

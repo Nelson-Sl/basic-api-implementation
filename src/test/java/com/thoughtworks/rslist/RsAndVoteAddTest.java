@@ -104,7 +104,8 @@ public class RsAndVoteAddTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
-        HotEvents event = new HotEvents("一个热搜事件","无分类",userId,10);
+        HotEvents event = new HotEvents("一个热搜事件","无分类",user,
+                Integer.valueOf(userId),10);
         String eventInfo = objectMapper.writeValueAsString(event);
         mockMvc.perform(post("/rs/event")
                         .content(eventInfo).contentType(MediaType.APPLICATION_JSON))
@@ -121,7 +122,7 @@ public class RsAndVoteAddTest {
                 .content(userInfo)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
-        HotEvents event = new HotEvents("一个热搜事件","无分类","33",10);
+        HotEvents event = new HotEvents("一个热搜事件","无分类",user,33,10);
         String eventInfo = objectMapper.writeValueAsString(event);
         mockMvc.perform(post("/rs/event")
                 .content(eventInfo).contentType(MediaType.APPLICATION_JSON))
@@ -137,7 +138,7 @@ public class RsAndVoteAddTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
-        HotEvents event = new HotEvents("一个热搜事件","无分类",userId,10);
+        HotEvents event = new HotEvents("一个热搜事件","无分类",user1,Integer.valueOf(userId),10);
         String eventInfo = objectMapper.writeValueAsString(event);
         mockMvc.perform(post("/rs/event")
                 .content(eventInfo).contentType(MediaType.APPLICATION_JSON))
@@ -157,7 +158,7 @@ public class RsAndVoteAddTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
-        HotEvents event = new HotEvents("一个热搜事件","无分类",userId,10);
+        HotEvents event = new HotEvents("一个热搜事件","无分类",user1,Integer.valueOf(userId),10);
         String eventInfo = objectMapper.writeValueAsString(event);
         String eventId = mockMvc.perform(post("/rs/event")
                 .content(eventInfo).contentType(MediaType.APPLICATION_JSON))
@@ -187,21 +188,24 @@ public class RsAndVoteAddTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
-        HotEvents event = new HotEvents("一个热搜事件","无分类",userId,10);
+        HotEvents event = new HotEvents("一个热搜事件","无分类",user1,
+                Integer.valueOf(userId),10);
         String eventInfo = objectMapper.writeValueAsString(event);
         String eventId = mockMvc.perform(post("/rs/event")
                 .content(eventInfo).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
 
-        HotEvents event2 = new HotEvents("第二个热搜事件","无分类",userId,10);
+        HotEvents event2 = new HotEvents("第二个热搜事件","无分类",user1,
+                Integer.valueOf(userId),10);
         String eventInfo2 = objectMapper.writeValueAsString(event2);
         String eventId2 = mockMvc.perform(post("/rs/event")
                 .content(eventInfo2).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
 
-        HotEvents event3 = new HotEvents("第三个热搜事件","无分类",userId,10);
+        HotEvents event3 = new HotEvents("第三个热搜事件","无分类",user1,
+                Integer.valueOf(userId),10);
         String eventInfo3 = objectMapper.writeValueAsString(event3);
         String eventId3 = mockMvc.perform(post("/rs/event")
                 .content(eventInfo3).contentType(MediaType.APPLICATION_JSON))
@@ -236,7 +240,7 @@ public class RsAndVoteAddTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
-        HotEvents event = new HotEvents("一个热搜事件","无分类",userId,10);
+        HotEvents event = new HotEvents("一个热搜事件","无分类",user,Integer.valueOf(userId),10);
         String eventInfo = objectMapper.writeValueAsString(event);
         String eventId = mockMvc.perform(post("/rs/event")
                 .content(eventInfo).contentType(MediaType.APPLICATION_JSON))
@@ -268,7 +272,8 @@ public class RsAndVoteAddTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
-        HotEvents event = new HotEvents("一个热搜事件","无分类",userId,10);
+        HotEvents event = new HotEvents("一个热搜事件","无分类",user,
+                Integer.valueOf(userId),10);
         String eventInfo = objectMapper.writeValueAsString(event);
         String eventId = mockMvc.perform(post("/rs/event")
                 .content(eventInfo).contentType(MediaType.APPLICATION_JSON))
@@ -287,7 +292,8 @@ public class RsAndVoteAddTest {
 
     @Test
     void judgeUserCanVoteForTheEvent() throws Exception {
-        User user1 = new User("Mark",24,"Male","mark@gmail.com","18888888888",10);
+        User user1 = new User("Mark",24,"Male","mark@gmail.com",
+                "18888888888",10);
         String userInfo1 = objectMapper.writeValueAsString(user1);
         String userId = mockMvc.perform(post("/user")
                 .content(userInfo1)
@@ -295,14 +301,15 @@ public class RsAndVoteAddTest {
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
 
-        HotEvents event = new HotEvents("一个热搜事件","无分类",userId,10);
+        HotEvents event = new HotEvents("一个热搜事件","无分类",user1,
+                Integer.valueOf(userId),10);
         String eventInfo = objectMapper.writeValueAsString(event);
         String eventId = mockMvc.perform(post("/rs/event")
                 .content(eventInfo).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
 
-        Vote userVote = new Vote(5, LocalDateTime.now(),userId,eventId);
+        Vote userVote = new Vote(5, LocalDateTime.now(),user1,userId,eventId);
 
         String userVoteInfo = objectMapper.writeValueAsString(userVote);
 
@@ -311,23 +318,23 @@ public class RsAndVoteAddTest {
                 .andExpect(status().isCreated());
         assertEquals(1,voteRepository.findAll().size());
         assertEquals(5, voteRepository.findAll().get(0).getVoteNum());
-        assertEquals(userId,voteRepository.findAll().get(0).getUserId());
+        assertEquals(Integer.valueOf(userId),voteRepository.findAll().get(0).getUser().getId());
         assertEquals(15,eventRepository.findById(Integer.valueOf(eventId)).get().getVoteNum());
         assertEquals(5, userRepository.findById(Integer.valueOf(userId)).get().getVote());
 
-        Vote anotherUserVote = new Vote(11, LocalDateTime.now(),userId,eventId);
+        Vote anotherUserVote = new Vote(11, LocalDateTime.now(),user1,userId,eventId);
         String anotherUserVoteInfo = objectMapper.writeValueAsString(anotherUserVote);
         mockMvc.perform(post("/rs/"+eventId + "/vote")
                 .content(anotherUserVoteInfo).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
 
-        Vote voteWithNotExitUserId = new Vote(5, LocalDateTime.now(),"33",eventId);
+        Vote voteWithNotExitUserId = new Vote(5, LocalDateTime.now(),user1,"33",eventId);
         String voteInfoWithNotExitUserId = objectMapper.writeValueAsString(voteWithNotExitUserId);
         mockMvc.perform(post("/rs/"+eventId + "/vote")
                 .content(voteInfoWithNotExitUserId).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
 
-        Vote voteWithNotExistRsEventId = new Vote(5, LocalDateTime.now(),userId,eventId);
+        Vote voteWithNotExistRsEventId = new Vote(5, LocalDateTime.now(),user1,userId,eventId);
         String voteInfoWithNotExistRsEventId = objectMapper.writeValueAsString(voteWithNotExistRsEventId);
         mockMvc.perform(post("/rs/33/vote")
                 .content(voteInfoWithNotExistRsEventId).contentType(MediaType.APPLICATION_JSON))
