@@ -19,7 +19,7 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("/addUser")
+    @PostMapping("/user")
     public ResponseEntity addUserToRepository(@RequestBody @Valid User user){
         UserEntity newUser = User.userEntityBuilder(user);
         UserEntity userAdded = userService.addOrSaveUser(newUser);
@@ -33,7 +33,7 @@ public class UserController {
         return ResponseEntity.ok(searchResult);
     }
 
-    @DeleteMapping("/deleteUser/{index}")
+    @DeleteMapping("/user/{index}")
     public ResponseEntity deleteUserFromRepository(@PathVariable int index) {
         userService.deleteUserById(index);
         return ResponseEntity.ok().build();

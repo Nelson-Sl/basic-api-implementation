@@ -16,7 +16,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -31,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class DatabaseConnectionTest {
+public class RsAndVoteAddTest {
     ObjectMapper objectMapper = new ObjectMapper();
     @Autowired
     private MockMvc mockMvc;
@@ -53,7 +52,7 @@ public class DatabaseConnectionTest {
     void shouldAddOneUserToRepository() throws Exception {
         User user = new User("Mark",24,"Male","mark@gmail.com","18888888888",10);
         String userInfo = objectMapper.writeValueAsString(user);
-        mockMvc.perform(post("/addUser")
+        mockMvc.perform(post("/user")
                 .content(userInfo)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
@@ -66,7 +65,7 @@ public class DatabaseConnectionTest {
     void shouldGetUserInfoFromRepository() throws Exception {
         User user = new User("Mark",24,"Male","mark@gmail.com","18888888888",10);
         String userInfo = objectMapper.writeValueAsString(user);
-        String userId = mockMvc.perform(post("/addUser")
+        String userId = mockMvc.perform(post("/user")
                 .content(userInfo)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
@@ -85,12 +84,12 @@ public class DatabaseConnectionTest {
     void shouldDeleteUserFromRepository() throws Exception {
         User user1 = new User("Mark",24,"Male","mark@gmail.com","18888888888",10);
         String userInfo1 = objectMapper.writeValueAsString(user1);
-        String userId = mockMvc.perform(post("/addUser")
+        String userId = mockMvc.perform(post("/user")
                 .content(userInfo1)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
-        mockMvc.perform(delete("/deleteUser/" + userId)) 
+        mockMvc.perform(delete("/user/" + userId))
                 .andExpect(status().isOk());
         List<UserEntity> userList = userRepository.findAll();
         assertEquals(0,userList.size());
@@ -100,14 +99,14 @@ public class DatabaseConnectionTest {
     void shouldAddingEventWhenUsersHadRegistered() throws Exception {
         User user = new User("Mark",24,"Male","mark@gmail.com","18888888888",10);
         String userInfo = objectMapper.writeValueAsString(user);
-        String userId = mockMvc.perform(post("/addUser")
+        String userId = mockMvc.perform(post("/user")
                 .content(userInfo)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
         HotEvents event = new HotEvents("一个热搜事件","无分类",userId,10);
         String eventInfo = objectMapper.writeValueAsString(event);
-        mockMvc.perform(post("/rs/addEvent")
+        mockMvc.perform(post("/rs/event")
                         .content(eventInfo).contentType(MediaType.APPLICATION_JSON))
                         .andExpect(status().isCreated());
         assertEquals(1, eventRepository.findAll().size());
@@ -118,13 +117,13 @@ public class DatabaseConnectionTest {
     void shouldNotAddingEventWhenUsersHadNotRegistered() throws Exception {
         User user = new User("Mark",24,"Male","mark@gmail.com","18888888888",10);
         String userInfo = objectMapper.writeValueAsString(user);
-        mockMvc.perform(post("/addUser")
+        mockMvc.perform(post("/user")
                 .content(userInfo)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
         HotEvents event = new HotEvents("一个热搜事件","无分类","33",10);
         String eventInfo = objectMapper.writeValueAsString(event);
-        mockMvc.perform(post("/rs/addEvent")
+        mockMvc.perform(post("/rs/event")
                 .content(eventInfo).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
@@ -133,17 +132,17 @@ public class DatabaseConnectionTest {
     void shouldDeleteUserWithHisEvents() throws Exception {
         User user1 = new User("Mark",24,"Male","mark@gmail.com","18888888888",10);
         String userInfo1 = objectMapper.writeValueAsString(user1);
-        String userId = mockMvc.perform(post("/addUser")
+        String userId = mockMvc.perform(post("/user")
                 .content(userInfo1)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
         HotEvents event = new HotEvents("一个热搜事件","无分类",userId,10);
         String eventInfo = objectMapper.writeValueAsString(event);
-        mockMvc.perform(post("/rs/addEvent")
+        mockMvc.perform(post("/rs/event")
                 .content(eventInfo).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
-        mockMvc.perform(delete("/deleteUser/" + userId))
+        mockMvc.perform(delete("/user/" + userId))
                 .andExpect(status().isOk());
         assertEquals(0,userRepository.findAll().size());
         assertEquals(0,eventRepository.findAll().size());
@@ -153,128 +152,58 @@ public class DatabaseConnectionTest {
     void shouldUpdateEventInfoWithTheUserExisting() throws Exception {
         User user1 = new User("Mark",24,"Male","mark@gmail.com","18888888888",10);
         String userInfo1 = objectMapper.writeValueAsString(user1);
-        String userId = mockMvc.perform(post("/addUser")
+        String userId = mockMvc.perform(post("/user")
                 .content(userInfo1)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
         HotEvents event = new HotEvents("一个热搜事件","无分类",userId,10);
         String eventInfo = objectMapper.writeValueAsString(event);
-        String eventId = mockMvc.perform(post("/rs/addEvent")
+        String eventId = mockMvc.perform(post("/rs/event")
                 .content(eventInfo).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
-        String patchUrl = "/rs/" +eventId+"?eventName=另一个热搜事件&keyWord=时事";
-        mockMvc.perform(patch(patchUrl))
+        mockMvc.perform(patch("/rs/" +eventId)
+                .param("eventName","另一个热搜事件")
+                .param("keyWord","时事"))
                 .andExpect(status().isOk());
         assertEquals(1, eventRepository.findAll().size());
         assertEquals("另一个热搜事件",eventRepository.findAll().get(0).getEventName());
         assertEquals("时事",eventRepository.findAll().get(0).getKeyWord());
 
-        String anotherPatchUrl = "/rs/33?eventName=再一个热搜事件&keyWord=娱乐";
-        mockMvc.perform(patch(anotherPatchUrl))
+        String anotherPatchUrl = "/rs/33";
+        mockMvc.perform(patch(anotherPatchUrl)
+                .param("eventName","再一个热搜事件")
+                .param("keyWord","娱乐"))
                 .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void judgeUserCanVoteForTheEvent() throws Exception {
-        User user1 = new User("Mark",24,"Male","mark@gmail.com","18888888888",10);
-        String userInfo1 = objectMapper.writeValueAsString(user1);
-        String userId = mockMvc.perform(post("/addUser")
-                .content(userInfo1)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated())
-                .andReturn().getResponse().getContentAsString();
-
-        HotEvents event = new HotEvents("一个热搜事件","无分类",userId,10);
-        String eventInfo = objectMapper.writeValueAsString(event);
-        String eventId = mockMvc.perform(post("/rs/addEvent")
-                .content(eventInfo).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated())
-                .andReturn().getResponse().getContentAsString();
-
-        Vote userVote = new Vote(5, LocalDateTime.now(),userId,eventId);
-
-        String userVoteInfo = objectMapper.writeValueAsString(userVote);
-
-        mockMvc.perform(post("/rs/vote/"+eventId)
-                .content(userVoteInfo).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated());
-        assertEquals(1,voteRepository.findAll().size());
-        assertEquals(5, voteRepository.findAll().get(0).getVoteNum());
-        assertEquals(userId,voteRepository.findAll().get(0).getUserId());
-        assertEquals(15,eventRepository.findById(Integer.valueOf(eventId)).get().getVoteNum());
-        assertEquals(5, userRepository.findById(Integer.valueOf(userId)).get().getVote());
-
-        Vote anotherUserVote = new Vote(11, LocalDateTime.now(),userId,eventId);
-        String anotherUserVoteInfo = objectMapper.writeValueAsString(anotherUserVote);
-        mockMvc.perform(post("/rs/vote/"+eventId)
-                .content(anotherUserVoteInfo).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-
-        Vote voteWithNotExitUserId = new Vote(5, LocalDateTime.now(),"33",eventId);
-        String voteInfoWithNotExitUserId = objectMapper.writeValueAsString(voteWithNotExitUserId);
-        mockMvc.perform(post("/rs/vote/"+eventId)
-                .content(voteInfoWithNotExitUserId).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-
-        Vote voteWithNotExistRsEventId = new Vote(5, LocalDateTime.now(),userId,eventId);
-        String voteInfoWithNotExistRsEventId = objectMapper.writeValueAsString(voteWithNotExistRsEventId);
-        mockMvc.perform(post("/rs/vote/"+33)
-                .content(voteInfoWithNotExistRsEventId).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void getSpecialEventsFromDatabase() throws Exception {
-        User user1 = new User("Mark",24,"Male","mark@gmail.com","18888888888",10);
-        String userInfo1 = objectMapper.writeValueAsString(user1);
-        String userId = mockMvc.perform(post("/addUser")
-                .content(userInfo1)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated())
-                .andReturn().getResponse().getContentAsString();
-        HotEvents event = new HotEvents("一个热搜事件","无分类",userId,10);
-        String eventInfo = objectMapper.writeValueAsString(event);
-        String eventId = mockMvc.perform(post("/rs/addEvent")
-                .content(eventInfo).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated())
-                .andReturn().getResponse().getContentAsString();
-        mockMvc.perform(get("/rs/list/" + eventId))
-                .andExpect(jsonPath("$.eventName",is("一个热搜事件")))
-                .andExpect(jsonPath("$.keyWord",is("无分类")))
-                .andExpect(jsonPath("$.id",is(Integer.valueOf(eventId))))
-                .andExpect(jsonPath("$.voteNum",is(10)))
-                .andExpect(jsonPath("$",not(hasKey("userId"))))
-                .andExpect(status().isOk());
     }
 
     @Test
     void getSpecialRangeOfEventsFromDatabase() throws Exception {
         User user1 = new User("Mark",24,"Male","mark@gmail.com","18888888888",10);
         String userInfo1 = objectMapper.writeValueAsString(user1);
-        String userId = mockMvc.perform(post("/addUser")
+        String userId = mockMvc.perform(post("/user")
                 .content(userInfo1)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
         HotEvents event = new HotEvents("一个热搜事件","无分类",userId,10);
         String eventInfo = objectMapper.writeValueAsString(event);
-        String eventId = mockMvc.perform(post("/rs/addEvent")
+        String eventId = mockMvc.perform(post("/rs/event")
                 .content(eventInfo).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
 
         HotEvents event2 = new HotEvents("第二个热搜事件","无分类",userId,10);
         String eventInfo2 = objectMapper.writeValueAsString(event2);
-        String eventId2 = mockMvc.perform(post("/rs/addEvent")
+        String eventId2 = mockMvc.perform(post("/rs/event")
                 .content(eventInfo2).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
 
         HotEvents event3 = new HotEvents("第三个热搜事件","无分类",userId,10);
         String eventInfo3 = objectMapper.writeValueAsString(event3);
-        String eventId3 = mockMvc.perform(post("/rs/addEvent")
+        String eventId3 = mockMvc.perform(post("/rs/event")
                 .content(eventInfo3).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
@@ -302,25 +231,31 @@ public class DatabaseConnectionTest {
     void shouldAlterEventInfoIfEventExists() throws Exception {
         User user = new User("Mark",24,"Male","mark@gmail.com","18888888888",10);
         String userInfo = objectMapper.writeValueAsString(user);
-        String userId = mockMvc.perform(post("/addUser")
+        String userId = mockMvc.perform(post("/user")
                 .content(userInfo)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
         HotEvents event = new HotEvents("一个热搜事件","无分类",userId,10);
         String eventInfo = objectMapper.writeValueAsString(event);
-        String eventId = mockMvc.perform(post("/rs/addEvent")
+        String eventId = mockMvc.perform(post("/rs/event")
                 .content(eventInfo).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
 
-        mockMvc.perform(post("/rs/alterEvent?indexStr="+ eventId +"&eventName=特朗普辞职&keyWord=时事"))
+        mockMvc.perform(put("/rs/event")
+                .param("indexStr",eventId)
+                .param("eventName","特朗普辞职")
+                .param("keyWord","时事"))
                 .andExpect(status().isOk());
         EventEntity changedEvent = eventRepository.findById(Integer.valueOf(eventId)).get();
         assertEquals("特朗普辞职", changedEvent.getEventName());
         assertEquals("时事", changedEvent.getKeyWord());
 
-        mockMvc.perform(post("/rs/alterEvent?indexStr=33&eventName=乘风破浪的姐姐&keyWord=娱乐"))
+        mockMvc.perform(put("/rs/event")
+                .param("indexStr","33")
+                .param("eventName","乘风破浪的姐姐")
+                .param("keyWord","娱乐"))
                 .andExpect(status().isBadRequest());
     }
 
@@ -328,23 +263,74 @@ public class DatabaseConnectionTest {
     void shouldDeleteEventBasedOnIdOffered() throws Exception {
         User user = new User("Mark",24,"Male","mark@gmail.com","18888888888",10);
         String userInfo = objectMapper.writeValueAsString(user);
-        String userId = mockMvc.perform(post("/addUser")
+        String userId = mockMvc.perform(post("/user")
                 .content(userInfo)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
         HotEvents event = new HotEvents("一个热搜事件","无分类",userId,10);
         String eventInfo = objectMapper.writeValueAsString(event);
-        String eventId = mockMvc.perform(post("/rs/addEvent")
+        String eventId = mockMvc.perform(post("/rs/event")
                 .content(eventInfo).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
 
-        mockMvc.perform(post("/rs/deleteEvent?indexStr="+eventId))
+        mockMvc.perform(delete("/rs/event")
+                .param("indexStr",eventId))
                 .andExpect(status().isOk());
         assertEquals(0, eventRepository.count());
 
-        mockMvc.perform(post("/rs/deleteEvent?indexStr=33"))
+        mockMvc.perform(delete("/rs/event")
+                .param("indexStr","33"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void judgeUserCanVoteForTheEvent() throws Exception {
+        User user1 = new User("Mark",24,"Male","mark@gmail.com","18888888888",10);
+        String userInfo1 = objectMapper.writeValueAsString(user1);
+        String userId = mockMvc.perform(post("/user")
+                .content(userInfo1)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+
+        HotEvents event = new HotEvents("一个热搜事件","无分类",userId,10);
+        String eventInfo = objectMapper.writeValueAsString(event);
+        String eventId = mockMvc.perform(post("/rs/event")
+                .content(eventInfo).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+
+        Vote userVote = new Vote(5, LocalDateTime.now(),userId,eventId);
+
+        String userVoteInfo = objectMapper.writeValueAsString(userVote);
+
+        mockMvc.perform(post("/rs/"+eventId + "/vote")
+                .content(userVoteInfo).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated());
+        assertEquals(1,voteRepository.findAll().size());
+        assertEquals(5, voteRepository.findAll().get(0).getVoteNum());
+        assertEquals(userId,voteRepository.findAll().get(0).getUserId());
+        assertEquals(15,eventRepository.findById(Integer.valueOf(eventId)).get().getVoteNum());
+        assertEquals(5, userRepository.findById(Integer.valueOf(userId)).get().getVote());
+
+        Vote anotherUserVote = new Vote(11, LocalDateTime.now(),userId,eventId);
+        String anotherUserVoteInfo = objectMapper.writeValueAsString(anotherUserVote);
+        mockMvc.perform(post("/rs/"+eventId + "/vote")
+                .content(anotherUserVoteInfo).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+
+        Vote voteWithNotExitUserId = new Vote(5, LocalDateTime.now(),"33",eventId);
+        String voteInfoWithNotExitUserId = objectMapper.writeValueAsString(voteWithNotExitUserId);
+        mockMvc.perform(post("/rs/"+eventId + "/vote")
+                .content(voteInfoWithNotExitUserId).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+
+        Vote voteWithNotExistRsEventId = new Vote(5, LocalDateTime.now(),userId,eventId);
+        String voteInfoWithNotExistRsEventId = objectMapper.writeValueAsString(voteWithNotExistRsEventId);
+        mockMvc.perform(post("/rs/33/vote")
+                .content(voteInfoWithNotExistRsEventId).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
 }

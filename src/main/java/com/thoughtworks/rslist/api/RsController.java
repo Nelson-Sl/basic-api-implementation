@@ -24,12 +24,12 @@ public class RsController {
         this.userService = userService;
     }
 
-    @GetMapping("/rs/list/{index}")
-    public ResponseEntity getSpecialEvents(@PathVariable int index) throws InvalidIndexInputException {
-        if(!rsService.isEventExists(index)) {
+    @GetMapping("/rs/list/{rsEventId}")
+    public ResponseEntity getSpecialEvents(@PathVariable int rsEventId) throws InvalidIndexInputException {
+        if(!rsService.isEventExists(rsEventId)) {
             throw new InvalidIndexInputException("invalid index");
         }
-        EventEntity event = rsService.getEventById(index);
+        EventEntity event = rsService.getEventById(rsEventId);
         return ResponseEntity.ok(event);
     }
 
@@ -49,7 +49,7 @@ public class RsController {
         return start >= end || start < 0 || start > rsService.getEventCount()|| end < 0;
     }
 
-    @PostMapping("/rs/addEvent")
+    @PostMapping("/rs/event")
     public ResponseEntity addHotEvent(@Validated @RequestBody HotEvents newEvent) {
         String userId = newEvent.getUserId();
         if(!userService.isUserExists(Integer.valueOf(userId))) {
@@ -60,7 +60,7 @@ public class RsController {
         return ResponseEntity.status(HttpStatus.CREATED).body(String.valueOf(eventDataSaved.getId()));
     }
 
-    @PostMapping("/rs/alterEvent")
+    @PutMapping("/rs/event")
     public ResponseEntity alterHotEvent(@RequestParam String indexStr,
                               @RequestParam(required = false) String eventName,
                               @RequestParam(required = false) String keyWord) {
@@ -79,7 +79,7 @@ public class RsController {
         return ResponseEntity.ok("Successfully change event, id:" + eventChanged.getId());
     }
 
-    @PostMapping("/rs/deleteEvent")
+    @DeleteMapping("/rs/event")
     public ResponseEntity deleteHotEvent(@RequestParam String indexStr) {
         int eventId = Integer.valueOf(indexStr);
         if(!rsService.isEventExists(eventId)) {

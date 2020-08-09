@@ -33,7 +33,7 @@ public class VoteController {
         this.voteService = voteService;
     }
 
-    @PostMapping("/rs/vote/{rsEventId}")
+    @PostMapping("/rs/{rsEventId}/vote")
     @Transactional
     public ResponseEntity checkVoteStatusForUser (@PathVariable int rsEventId, @RequestBody Vote vote) {
         int voteUserId = Integer.valueOf(vote.getUserId());
@@ -63,7 +63,7 @@ public class VoteController {
         return false;
     }
 
-    @GetMapping("/rs/vote")
+    @GetMapping("/rs/vote/searchByTime")
     public ResponseEntity<List<VoteEntity>> checkVoteRecordWithinTime(
             @RequestParam String startTime, @RequestParam String endTime) {
         LocalDateTime startDate = LocalDateTime.parse(startTime,dateTimeFormat);
@@ -75,9 +75,9 @@ public class VoteController {
     }
 
     //On class demo 1
-    @GetMapping("/rs/voteRecord")
+    @GetMapping("/rs/vote")
     @Transactional
-    public ResponseEntity<List<VoteEntity>> checkVoteRecordByVoteIdAndUserId(@RequestParam String userId,
+    public ResponseEntity<List<VoteEntity>> checkVoteRecordByEventIdAndUserId(@RequestParam String userId,
                                                            @RequestParam String eventId,
                                                          @RequestParam(required = false) String pageIndex) {
         if(!userService.isUserExists(Integer.valueOf(userId)) ||
